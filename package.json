@@ -1,0 +1,27 @@
+{
+  "name": "saramjs",
+  "version": "1.0.0",
+  "description": "Node lib for Saram",
+  "main": "index.js",
+  "scripts": {
+    "test": "tsc index.ts --module commonjs; node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/securisec/saramJs.git"
+  },
+  "author": "Hapsida @securisec",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/securisec/saramJs/issues"
+  },
+  "homepage": "https://github.com/securisec/saramJs#readme",
+  "dependencies": {
+    "@types/uuid": "^3.4.4",
+    "axios": "^0.18.0",
+    "uuid": "^3.3.2"
+  },
+  "devDependencies": {
+    "@types/node": "^11.11.1"
+  }
+}

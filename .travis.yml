@@ -1,0 +1,15 @@
+language: node_js
+node_js:
+  - '11'
+  - '10'
+  - '9'
+  - '8'
+cache:
+  directories:
+    - node_modules
+
+before_install:
+  - npm i -g typescript
+
+script:
+  - npm test
