@@ -6,10 +6,12 @@ node_js:
   - '8'
 cache:
   directories:
-    - node_modules
-
+  - node_modules
 before_install:
   - npm i -g typescript
-
+  - npm i
 script:
-  - npm test
+- npm test
+notifications:
+  slack:
+    secure: UoaR/peqUJhOek0/hPQ0CtsMt9EAv9WinOwmkd/tOasTuS2FmZPYoknIMBgi4F+A0TcFNyeVPp/USp9rzuWqLeGy5uw5dxaw+c4MN/Ltbi3/E+rGrPr7oSwlEiV2bXLvS3+pYeSGu1aJxDhxs2/S0S56D51P8IbrMbfZ9/zgRQ1QRKGwvWGSkuA9sPdXqXRCXHIRwXo1x0b4IkvEzPh2QmNgcqRFWah1UYQcGsgRalbr0+KHGdO6frLGZyCjztSmTnGcenTS3sHRUOhKb8iT1szZrDW9vFlF9nARfea7owY69FocPDILy4+Ys5dLCtmap3dRZG7zsSpPFO4RYoAsvrOFNgeSqqsnLH/HqZFF1t4LKa83Y0ZHQoSO5eC1Baycer2O9FX6j66mZU2QoLFbnYnUUASNA7uxjSmN8TEdKXtwax8tK1bOnqwFsnJI0ovbXszGT1soJ1NN5DIYSLfb7p5WiifyGRDaaI+bSP4Hhk4UGcpiBHsMYyOpzpstU039RT7R2/ucDP8xZEdWyLuLGHnvogEfhTaZvkTufi72jmJ/6nIny/ty486a9RrfdSsakTOlMhaxV2csiljU/gkySKAVvkSmQ3QHkWONSXfiGZSsCbZKwhVn7M7AZ6bUmJsStAxmeN99byFY4BA+RUS3Exq1L7Et4R0G2Av1vTeGe5U=
