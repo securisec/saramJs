@@ -147,17 +147,6 @@ class Saram {
 	};
 
 	/**
-   * Gets all the current entries from the Saram server
-   */
-	getAllEntries = () => {
-		return Axios({
-			method: 'get',
-			baseURL: this.baseUrl,
-			url: 'api/all/4df9cc121afe1c00de4e9e396af4cdb1'
-		});
-	};
-
-	/**
    * Sends the value of saramObject to the Saram server
    */
 	sendToServer = (): void => {

@@ -1,6 +1,6 @@
 {
   "name": "saramjs",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Node lib for Saram",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -18,11 +18,11 @@
   },
   "homepage": "https://github.com/securisec/saramJs#readme",
   "dependencies": {
-    "@types/uuid": "^3.4.4",
     "axios": "^0.18.0",
     "uuid": "^3.3.2"
   },
   "devDependencies": {
-    "@types/node": "^11.11.1"
+    "@types/node": "^11.11.1",
+    "@types/uuid": "^3.4.4"
   }
 }
