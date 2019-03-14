@@ -19,7 +19,7 @@ interface saramObject {
 	time: string;
 }
 
-interface saramInit {
+interface init {
 	token: string;
 	user: string;
 	local?: boolean;
@@ -32,6 +32,9 @@ interface methodTypes {
 	[key: string]: any;
 }
 
+/**
+ * The main class for Saram. token and user values are required.
+ */
 class Saram {
 	private token: string;
 	private user: string;
@@ -40,7 +43,7 @@ class Saram {
 	private url: string;
 	saramObject: saramObject;
 
-	constructor (options: saramInit) {
+	constructor (options: init) {
 		this.token = options.token;
 		this.user = options.user;
 		this.local = options.local || false;
@@ -92,9 +95,13 @@ class Saram {
 		if (params.comment) {
 			this.saramObject.comment.push(params.comment);
 		}
+		console.log(output);
 		return this;
 	};
 
+	/**
+   * Method that returns the whole file of the file it is called in.
+   */
 	readFileContent = (filePath: string, params: methodTypes = {}): Saram => {
 		let output = readFileSync(filePath, {
 			encoding: 'utf8'
@@ -105,9 +112,13 @@ class Saram {
 		if (params.comment) {
 			this.saramObject.comment.push(params.comment);
 		}
+		console.log(output);
 		return this;
 	};
 
+	/**
+   * Function will send the variable of a JS/TS file to the server
+   */
 	variableOutput = (variable: any, params: methodTypes = {}): Saram => {
 		this.saramObject.command = params.scriptName || 'Script';
 		this.saramObject.output = variable;
@@ -115,20 +126,29 @@ class Saram {
 		if (params.comment) {
 			this.saramObject.comment.push(params.comment);
 		}
+		console.log(variable);
 		return this;
 	};
 
+	/**
+   * Send the output of a command line command to the server
+   */
 	runCommand = (command: string, params: methodTypes = {}): Saram => {
 		let stdout = execSync(command).toString();
+		let clean = this.cleanOutput(stdout);
 		this.saramObject.command = command;
-		this.saramObject.output = this.cleanOutput(stdout);
+		this.saramObject.output = clean;
 		this.saramObject.type = 'stdout';
 		if (params.comment) {
 			this.saramObject.comment.push(params.comment);
 		}
+		console.log(clean);
 		return this;
 	};
 
+	/**
+   * Gets all the current entries from the Saram server
+   */
 	getAllEntries = () => {
 		return Axios({
 			method: 'get',
@@ -137,6 +157,9 @@ class Saram {
 		});
 	};
 
+	/**
+   * Sends the value of saramObject to the Saram server
+   */
 	sendToServer = (): void => {
 		Axios({
 			method: 'patch',
@@ -149,10 +172,12 @@ class Saram {
 				}
 			})
 			.catch((error) => console.log(error));
-  };
-  
-  send = this.sendToServer
+	};
+
+	/**
+   * Alias for sendToServer
+   */
+	send = this.sendToServer;
 }
 
-// TODO documentation
-// TODO convert to installable module
+export { Saram };

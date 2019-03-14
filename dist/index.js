@@ -8,6 +8,9 @@ const v1_1 = __importDefault(require("uuid/v1"));
 const fs_1 = require("fs");
 const path_1 = require("path");
 const child_process_1 = require("child_process");
+/**
+ * The main class for Saram. token and user values are required.
+ */
 class Saram {
     constructor(options) {
         this.checkDev = () => {
@@ -39,8 +42,12 @@ class Saram {
             if (params.comment) {
                 this.saramObject.comment.push(params.comment);
             }
+            console.log(output);
             return this;
         };
+        /**
+       * Method that returns the whole file of the file it is called in.
+       */
         this.readFileContent = (filePath, params = {}) => {
             let output = fs_1.readFileSync(filePath, {
                 encoding: 'utf8'
@@ -51,8 +58,12 @@ class Saram {
             if (params.comment) {
                 this.saramObject.comment.push(params.comment);
             }
+            console.log(output);
             return this;
         };
+        /**
+       * Function will send the variable of a JS/TS file to the server
+       */
         this.variableOutput = (variable, params = {}) => {
             this.saramObject.command = params.scriptName || 'Script';
             this.saramObject.output = variable;
@@ -60,18 +71,27 @@ class Saram {
             if (params.comment) {
                 this.saramObject.comment.push(params.comment);
             }
+            console.log(variable);
             return this;
         };
+        /**
+       * Send the output of a command line command to the server
+       */
         this.runCommand = (command, params = {}) => {
             let stdout = child_process_1.execSync(command).toString();
+            let clean = this.cleanOutput(stdout);
             this.saramObject.command = command;
-            this.saramObject.output = this.cleanOutput(stdout);
+            this.saramObject.output = clean;
             this.saramObject.type = 'stdout';
             if (params.comment) {
                 this.saramObject.comment.push(params.comment);
             }
+            console.log(clean);
             return this;
         };
+        /**
+       * Gets all the current entries from the Saram server
+       */
         this.getAllEntries = () => {
             return axios_1.default({
                 method: 'get',
@@ -79,6 +99,9 @@ class Saram {
                 url: 'api/all/4df9cc121afe1c00de4e9e396af4cdb1'
             });
         };
+        /**
+       * Sends the value of saramObject to the Saram server
+       */
         this.sendToServer = () => {
             axios_1.default({
                 method: 'patch',
@@ -92,6 +115,9 @@ class Saram {
             })
                 .catch((error) => console.log(error));
         };
+        /**
+       * Alias for sendToServer
+       */
         this.send = this.sendToServer;
         this.token = options.token;
         this.user = options.user;
@@ -113,5 +139,4 @@ class Saram {
         this.checkDev();
     }
 }
-// TODO documentation
-// TODO convert to installable module
+exports.Saram = Saram;

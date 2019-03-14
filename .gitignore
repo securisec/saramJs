@@ -1,3 +1,7 @@
+.vscode/
+lol/
+test.js
+test.ts
 # Logs
 logs
 *.log
@@ -59,3 +63,4 @@ typings/
 
 # next.js build output
 .next
+test.ts
