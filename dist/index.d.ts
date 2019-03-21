@@ -13,7 +13,6 @@ interface saramObject {
 }
 interface init {
     token: string;
-    user: string;
     local?: boolean;
     baseUrl?: string;
 }
@@ -29,10 +28,13 @@ declare class Saram {
     private token;
     private user;
     private local?;
-    private baseUrl?;
-    private url;
+    private key;
+    configPath: string;
+    baseUrl?: string;
+    url: string;
     saramObject: saramObject;
     constructor(options: init);
+    private readConfig;
     private checkDev;
     private cleanOutput;
     readScriptSelf: (params?: methodTypes) => Saram;
@@ -49,10 +51,6 @@ declare class Saram {
    */
     runCommand: (command: string, params?: methodTypes) => Saram;
     /**
-   * Gets all the current entries from the Saram server
-   */
-    getAllEntries: () => import("axios").AxiosPromise<any>;
-    /**
    * Sends the value of saramObject to the Saram server
    */
     sendToServer: () => void;
@@ -61,4 +59,13 @@ declare class Saram {
    */
     send: () => void;
 }
-export { Saram };
+declare class SaramInit extends Saram {
+    private apiKey;
+    constructor({ apiKey, local, baseUrl }: {
+        apiKey: string;
+        local?: boolean;
+        baseUrl?: string;
+    });
+    init(): void;
+}
+export { Saram, SaramInit };

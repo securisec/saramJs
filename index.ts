@@ -1,8 +1,9 @@
 import Axios from 'axios';
 import uuid from 'uuid/v1';
-import { readFileSync } from 'fs';
+import { readFileSync, writeFileSync } from 'fs';
 import { basename } from 'path';
 import { execSync } from 'child_process';
+import { homedir } from 'os';
 
 interface optionsObject {
 	marked: number;
@@ -21,7 +22,6 @@ interface saramObject {
 
 interface init {
 	token: string;
-	user: string;
 	local?: boolean;
 	baseUrl?: string;
 }
@@ -39,16 +39,22 @@ class Saram {
 	private token: string;
 	private user: string;
 	private local?: boolean;
-	private baseUrl?: string;
-	private url: string;
+	private key: string;
+	configPath: string;
+	baseUrl?: string;
+	url: string;
 	saramObject: saramObject;
 
 	constructor (options: init) {
 		this.token = options.token;
-		this.user = options.user;
+		this.user = '';
+		this.key = '';
 		this.local = options.local || false;
 		this.baseUrl = options.baseUrl;
 		this.url = `${this.checkDev()}${this.token}`;
+		this.configPath = `${homedir()}/.saram.conf`;
+		this.checkDev();
+		this.readConfig();
 		this.saramObject = {
 			id: uuid(),
 			user: this.user,
@@ -61,8 +67,21 @@ class Saram {
 			},
 			time: new Date().toUTCString()
 		};
-		this.checkDev();
 	}
+
+	private readConfig = () => {
+		try {
+			let c = JSON.parse(
+				readFileSync(this.configPath, {
+					encoding: 'utf8'
+				})
+			);
+			this.key = c.apiKey;
+			this.user = c.username;
+		} catch (error) {
+			throw new Error('Cannot find saram config file. Use SaramInit to set it up');
+		}
+	};
 
 	private checkDev = (): void => {
 		let getUrl = (url: string): void => {
@@ -153,7 +172,10 @@ class Saram {
 		Axios({
 			method: 'patch',
 			url: this.url,
-			data: this.saramObject
+			data: this.saramObject,
+			headers: {
+				'x-saram-apikey': this.key
+			}
 		})
 			.then((res) => {
 				if (res.status === 200) {
@@ -169,4 +191,30 @@ class Saram {
 	send = this.sendToServer;
 }
 
-export { Saram };
+class SaramInit extends Saram {
+	private apiKey: string;
+
+	constructor ({ apiKey, local, baseUrl }: { apiKey: string; local?: boolean; baseUrl?: string }) {
+		super({
+			token: '',
+			local: local || false,
+			baseUrl: baseUrl || ''
+		});
+		this.apiKey = apiKey;
+	}
+
+	init (): void {
+		Axios.post(`${this.url}misc/valid/key`, {
+			key: this.apiKey
+		})
+			.then((res) => {
+				writeFileSync(this.configPath, JSON.stringify(res.data), {
+					encoding: 'utf8'
+				});
+				console.log(`Created ${this.configPath}`);
+			})
+			.catch((error) => console.log('API key is not valid'));
+	}
+}
+
+export { Saram, SaramInit };

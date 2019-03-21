@@ -8,6 +8,7 @@ cache:
   directories:
   - node_modules
 before_install:
+- cp ./tests/api.json ~/.saram.conf
 - npm i -g typescript
 - npm i
 script:

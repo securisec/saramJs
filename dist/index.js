@@ -8,11 +8,24 @@ const v1_1 = __importDefault(require("uuid/v1"));
 const fs_1 = require("fs");
 const path_1 = require("path");
 const child_process_1 = require("child_process");
+const os_1 = require("os");
 /**
  * The main class for Saram. token and user values are required.
  */
 class Saram {
     constructor(options) {
+        this.readConfig = () => {
+            try {
+                let c = JSON.parse(fs_1.readFileSync(this.configPath, {
+                    encoding: 'utf8'
+                }));
+                this.key = c.apiKey;
+                this.user = c.username;
+            }
+            catch (error) {
+                throw new Error('Cannot find saram config file. Use SaramInit to set it up');
+            }
+        };
         this.checkDev = () => {
             let getUrl = (url) => {
                 this.baseUrl = url;
@@ -90,23 +103,16 @@ class Saram {
             return this;
         };
         /**
-       * Gets all the current entries from the Saram server
-       */
-        this.getAllEntries = () => {
-            return axios_1.default({
-                method: 'get',
-                baseURL: this.baseUrl,
-                url: 'api/all/4df9cc121afe1c00de4e9e396af4cdb1'
-            });
-        };
-        /**
        * Sends the value of saramObject to the Saram server
        */
         this.sendToServer = () => {
             axios_1.default({
                 method: 'patch',
                 url: this.url,
-                data: this.saramObject
+                data: this.saramObject,
+                headers: {
+                    'x-saram-apikey': this.key
+                }
             })
                 .then((res) => {
                 if (res.status === 200) {
@@ -120,10 +126,14 @@ class Saram {
        */
         this.send = this.sendToServer;
         this.token = options.token;
-        this.user = options.user;
+        this.user = '';
+        this.key = '';
         this.local = options.local || false;
         this.baseUrl = options.baseUrl;
         this.url = `${this.checkDev()}${this.token}`;
+        this.configPath = `${os_1.homedir()}/.saram.conf`;
+        this.checkDev();
+        this.readConfig();
         this.saramObject = {
             id: v1_1.default(),
             user: this.user,
@@ -136,7 +146,29 @@ class Saram {
             },
             time: new Date().toUTCString()
         };
-        this.checkDev();
     }
 }
 exports.Saram = Saram;
+class SaramInit extends Saram {
+    constructor({ apiKey, local, baseUrl }) {
+        super({
+            token: '',
+            local: local || false,
+            baseUrl: baseUrl || ''
+        });
+        this.apiKey = apiKey;
+    }
+    init() {
+        axios_1.default.post(`${this.url}misc/valid/key`, {
+            key: this.apiKey
+        })
+            .then((res) => {
+            fs_1.writeFileSync(this.configPath, JSON.stringify(res.data), {
+                encoding: 'utf8'
+            });
+            console.log(`Created ${this.configPath}`);
+        })
+            .catch((error) => console.log('API key is not valid'));
+    }
+}
+exports.SaramInit = SaramInit;
