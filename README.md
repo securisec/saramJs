@@ -27,7 +27,6 @@ const {Saram} = require('saramjs')
 // Initialize a new Saram instance
 const saram = new saramJs.Saram({
   token: 'someToken',
-  user: 'someUser'
 })
 
 // Call any avaialble methods using 

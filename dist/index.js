@@ -22,9 +22,7 @@ class Saram {
                 this.key = c.apiKey;
                 this.user = c.username;
             }
-            catch (error) {
-                throw new Error('Cannot find saram config file. Use SaramInit to set it up');
-            }
+            catch (error) { }
         };
         this.checkDev = () => {
             let getUrl = (url) => {
