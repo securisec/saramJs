@@ -172,7 +172,8 @@ class Saram {
 			url: this.url,
 			data: this.saramObject,
 			headers: {
-				'x-saram-apikey': this.key
+				'x-saram-apikey': this.key,
+				'x-saram-username': this.user
 			}
 		})
 			.then((res) => {
