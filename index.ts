@@ -51,7 +51,7 @@ class Saram {
 		this.key = '';
 		this.local = options.local || false;
 		this.baseUrl = options.baseUrl;
-		this.url = `${this.checkDev()}${this.token}`;
+		this.url = `${this.checkDev()}api/${this.token}`;
 		this.configPath = `${homedir()}/.saram.conf`;
 		this.checkDev();
 		this.readConfig();
