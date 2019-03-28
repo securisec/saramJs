@@ -1,4 +1,4 @@
-import Axios from 'axios';
+import Axios, { AxiosInstance, AxiosResponse, AxiosPromise } from 'axios';
 import uuid from 'uuid/v1';
 import { readFileSync, writeFileSync } from 'fs';
 import { basename } from 'path';
@@ -37,9 +37,9 @@ interface methodTypes {
  */
 class Saram {
 	private token: string;
-	private user: string;
 	private local?: boolean;
-	private key: string;
+	key: string;
+	user: string;
 	configPath: string;
 	baseUrl?: string;
 	url: string;
@@ -69,6 +69,9 @@ class Saram {
 		};
 	}
 
+	/**
+	 * Reads the sets various values from the local Saram conf file
+	 */
 	private readConfig = () => {
 		try {
 			let c = JSON.parse(
@@ -97,10 +100,17 @@ class Saram {
 		}
 	};
 
+	/**
+	 * Strips out ansii color escape codes from stdout
+	 */
 	private cleanOutput = (s: string): string => {
 		return s.replace(/[\u001b\u009b][[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-ORZcf-nqry=><]/g, '').trim();
 	};
 
+	/**
+	 * Reads the contents of the whole script this method is called 
+	 * in and makes it available to send to the Saram server
+	 */
 	readScriptSelf = (params: methodTypes = {}): Saram => {
 		let scriptPath = process.argv[1];
 		let output = readFileSync(scriptPath, {
@@ -190,6 +200,10 @@ class Saram {
 	send = this.sendToServer;
 }
 
+/**
+ * This class is intended to create the local `.saram.conf` file 
+ * which all Saram extentions/modules etc relies on.
+ */
 class SaramInit extends Saram {
 	private apiKey: string;
 
@@ -202,6 +216,10 @@ class SaramInit extends Saram {
 		this.apiKey = apiKey;
 	}
 
+	/**
+	 * The init method will create a `.saram.conf` file in the users 
+	 * home directory using a valid API key and username.
+	 */
 	init (): void {
 		Axios.post(`${this.url}misc/valid/key`, {
 			key: this.apiKey
@@ -216,4 +234,233 @@ class SaramInit extends Saram {
 	}
 }
 
-export { Saram, SaramInit };
+interface CreateNewSection {
+	token: string;
+	type: string;
+	output: string;
+	command: string;
+	comment?: [];
+}
+
+/**
+ * This class makes the whole API for Saram available. 
+ */
+class SaramAPI extends Saram {
+	private headers: object;
+	private request: AxiosInstance;
+	private apiUrl: string;
+	private validTypes: Array<string>;
+	private validCategories: Array<string>;
+
+	constructor ({ local, baseUrl }: { local?: boolean; baseUrl?: string }) {
+		super({
+			token: '',
+			local: local || false,
+			baseUrl: baseUrl || ''
+		});
+		this.headers = {
+			'x-saram-apikey': this.key,
+			'x-saram-username': this.user
+		};
+		this.apiUrl = `${this.url}api/`;
+		this.request = Axios.create({
+			headers: this.headers,
+			baseURL: this.apiUrl
+		});
+		this.validTypes = [ 'file', 'stdout', 'script', 'dump', 'tool', 'image' ];
+		this.validCategories = [
+			'android',
+			'cryptography',
+			'firmware',
+			'forensics',
+			'hardware',
+			'ios',
+			'misc',
+			'network',
+			'pcap',
+			'pwn',
+			'reversing',
+			'stego',
+			'web',
+			'none',
+			'other',
+			'scripting'
+		];
+	}
+
+	/**
+	 * Private method that generates a valid token
+	 */
+	private _generateToken = (title: string) => {
+		var u = uuid().slice(0, 8);
+		var t = title.replace(/[^a-zA-Z0-9 ]/g, '').split(' ').join('-').slice(0, 25);
+		return `${u}-${t}`;
+	};
+
+	/**
+	 * Gets an array of all the valid entries
+	 */
+	getAllEntries = (): AxiosPromise => {
+		return this.request({
+			method: 'get',
+			url: '/all/entries'
+		});
+	};
+
+	/**
+	 * Gets all the data associated with a single entry
+	 */
+	getEntry = (token: string): AxiosPromise => {
+		return this.request({
+			method: 'get',
+			url: token
+		});
+	};
+
+	/**
+	 * Delete an entry entirely
+	 */
+	deleteEntry = (token: string): AxiosPromise => {
+		return this.request({
+			method: 'delete',
+			url: token
+		});
+	};
+
+	/**
+	 * Create a new section. This will add to the existing entry.
+	 */
+	createNewSection = (data: CreateNewSection): AxiosPromise => {
+		if (!this.validTypes.includes(data.type)) {
+			throw new Error(`Invalid type. Valid types are ${this.validTypes}`);
+		}
+		let payload: object = {
+			id: uuid(),
+			type: data.type,
+			output: data.output,
+			command: data.command,
+			user: this.user,
+			comment: data.comment || [ 'saramJs' ],
+			options: {
+				marked: 2
+			},
+			time: new Date().toUTCString()
+		};
+		return this.request({
+			method: 'patch',
+			url: data.token,
+			data: payload
+		});
+	};
+
+	/**
+	 * Add a comment to an existing section
+	 */
+	addComment = ({ token, dataid, comment }: { token: string; dataid: string; comment: string }): AxiosPromise => {
+		return this.request({
+			method: 'patch',
+			url: `${token}/${dataid}/comment`,
+			data: { data: comment }
+		});
+	};
+
+	/**
+	 * Delete a section. This will delete a single section in an entry
+	 */
+	deleteSection = ({ token, dataid }: { token: string; dataid: string }): AxiosPromise => {
+		return this.request({
+			method: 'delete',
+			url: `${token}/${dataid}`
+		});
+	};
+
+	/**
+	 * Create a new entry. This is a whole new entry to work with
+	 */
+	createNewEntry = ({
+		title,
+		category,
+		slackLink
+	}: {
+		title: string;
+		category: string;
+		slackLink?: string;
+	}): AxiosPromise => {
+		if (!this.validCategories.includes(category)) {
+			throw new Error(`Not a valid category. Valid categories are ${this.validCategories}`);
+		}
+		let newToken: string = this._generateToken(title);
+		let payload: object = {
+			title: title,
+			category: category,
+			slackLink: slackLink || '',
+			timeCreate: new Date().toUTCString(),
+			data: []
+		};
+		return this.request({
+			method: 'post',
+			url: `create/${newToken}`,
+			data: payload
+		});
+	};
+
+	/**
+	 * Reset the API key
+	 */
+	resetApiKey = ({ oldApiKey, username }: { oldApiKey: string; username: string }): AxiosPromise => {
+		let payload: object = {
+			apiKey: oldApiKey,
+			username: username
+		};
+		return this.request({
+			method: 'post',
+			url: 'reset/key',
+			data: payload
+		});
+	};
+
+	/**
+	 * Changes the username. Accepts a valid API key, a valid 
+	 * current username and the new username. Returns a new username
+	 */
+	changeUserName = ({
+		apiKey,
+		oldUserName,
+		newUserName
+	}: {
+		apiKey: string;
+		oldUserName: string;
+		newUserName: string;
+	}): AxiosPromise => {
+		return this.request({
+			method: 'post',
+			url: 'reset/username',
+			data: {
+				apiKey: apiKey,
+				username: oldUserName,
+				newUsername: newUserName
+			}
+		});
+	};
+
+	/**
+	 * Validates an API key, and returns the key and associated 
+	 * username on success.
+	 */
+	validateApiKey = (apiKey: string): AxiosPromise => {
+		return Axios({
+			method: 'post',
+			url: `${this.baseUrl}misc/valid/key`,
+			data: { key: apiKey }
+		});
+	};
+
+	/**
+	 * Generate a valid token
+	 */
+	getValidToken = (title: string): string => {
+		return this._generateToken(title);
+	};
+}
+
+export { Saram, SaramInit, SaramAPI };

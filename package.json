@@ -5,7 +5,8 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "test": "tsc index.ts --module commonjs; node index.js"
+    "test": "tsc index.ts --module commonjs; node ./dist/index.js",
+    "docs": "./node_modules/typedoc/bin/typedoc --out docs index.ts"
   },
   "repository": {
     "type": "git",
@@ -23,6 +24,7 @@
   },
   "devDependencies": {
     "@types/node": "^11.11.1",
-    "@types/uuid": "^3.4.4"
+    "@types/uuid": "^3.4.4",
+    "typedoc": "^0.14.2"
   }
 }

@@ -5,6 +5,17 @@
 # SaramJs
 The node library to interact with `Saram`. Both Typescript and Javascipt can be used.
 
+This library exports three main classes.
+- Saram
+- SaramInit
+- SaramAPI
+
+The `Saram` class is primary used to interact with the `Saram` server, and send it various output from commands run, files read, or script variables. This class simplifies the use of the `Saram` API.
+
+The `SaramInit` class is purely intended to set the `.saram.conf` file which all modules of `Saram` relies on.
+
+The `SaramAPI` class exposes the entire `Saram` API to be used programmatically. 
+
 ## Installation
 ```sh
 npm i saramjs --save
@@ -39,4 +50,10 @@ saram.readScriptSelf().send()
 ```typescript
 // Only difference between TS and JS is how it is imported
 import { Saram } from 'saramjs'
+```
+
+## Docs
+To generate docs using [Typedoc](https://typedoc.org/), use 
+```
+npm run docs
 ```
