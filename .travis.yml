@@ -23,6 +23,7 @@ deploy:
     bucket: saramjs.docs.securisec.net
     local-dir: docs
     acl: public_read
+    skip_cleanup: true
     on:
       repo: securisec/saramJs
   - provider: npm
