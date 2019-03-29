@@ -23,6 +23,11 @@ var os_1 = require("os");
  * The main class for Saram. token and user values are required.
  */
 var Saram = /** @class */ (function () {
+    /**
+     *Creates an instance of Saram.
+     * @param {init} options
+     * @memberof Saram
+     */
     function Saram(options) {
         var _this = this;
         /**
@@ -62,6 +67,9 @@ var Saram = /** @class */ (function () {
         /**
          * Reads the contents of the whole script this method is called
          * in and makes it available to send to the Saram server
+         *
+         * @param {methodTypes} [params={}]
+         * @returns {Saram}
          */
         this.readScriptSelf = function (params) {
             if (params === void 0) { params = {}; }
@@ -79,8 +87,12 @@ var Saram = /** @class */ (function () {
             return _this;
         };
         /**
-       * Method that returns the whole file of the file it is called in.
-       */
+         * Method that returns the whole file of the file it is called in.
+         *
+         * @param {string} filePath A valid file path to read. Will not work with binary files
+         * @param {methodTypes} [params={}] Optionally set a comment with `comment` param
+         * @returns {Saram}
+         */
         this.readFileContent = function (filePath, params) {
             if (params === void 0) { params = {}; }
             var output = fs_1.readFileSync(filePath, {
@@ -96,8 +108,12 @@ var Saram = /** @class */ (function () {
             return _this;
         };
         /**
-       * Function will send the variable of a JS/TS file to the server
-       */
+         * Function will send the variable of a JS/TS file to the server
+         *
+         * @param {*} variable The output from any script variable
+         * @param {methodTypes} [params={}] Optionally set a comment with `comment` param
+         * @returns {Saram}
+         */
         this.variableOutput = function (variable, params) {
             if (params === void 0) { params = {}; }
             _this.saramObject.command = params.scriptName || 'Script';
@@ -110,8 +126,12 @@ var Saram = /** @class */ (function () {
             return _this;
         };
         /**
-       * Send the output of a command line command to the server
-       */
+         * Send the output of a command line command to the server
+         *
+         * @param {string} command The command to run
+         * @param {methodTypes} [params={}] Optionally set a comment with `comment` param
+         * @returns {Saram}
+         */
         this.runCommand = function (command, params) {
             if (params === void 0) { params = {}; }
             var stdout = child_process_1.execSync(command).toString();
@@ -146,7 +166,9 @@ var Saram = /** @class */ (function () {
         };
         /**
        * Alias for sendToServer
-       */
+         *
+         * @memberof Saram
+         */
         this.send = this.sendToServer;
         this.token = options.token;
         this.user = '';
@@ -179,8 +201,14 @@ exports.Saram = Saram;
  */
 var SaramInit = /** @class */ (function (_super) {
     __extends(SaramInit, _super);
-    function SaramInit(_a) {
-        var apiKey = _a.apiKey, local = _a.local, baseUrl = _a.baseUrl;
+    /**
+     *Creates an instance of SaramInit.
+     * @param {string} apiKey
+     * @param {boolean} [local] Set to true to use http://localhost:5001/
+     * @param {string} [baseUrl] Set an arbitrary base url. Make sure to end with `/`
+     * @memberof SaramInit
+     */
+    function SaramInit(apiKey, local, baseUrl) {
         var _this = _super.call(this, {
             token: '',
             local: local || false,
@@ -192,6 +220,8 @@ var SaramInit = /** @class */ (function (_super) {
     /**
      * The init method will create a `.saram.conf` file in the users
      * home directory using a valid API key and username.
+     *
+     * @memberof SaramInit
      */
     SaramInit.prototype.init = function () {
         var _this = this;
@@ -213,8 +243,13 @@ exports.SaramInit = SaramInit;
  */
 var SaramAPI = /** @class */ (function (_super) {
     __extends(SaramAPI, _super);
-    function SaramAPI(_a) {
-        var local = _a.local, baseUrl = _a.baseUrl;
+    /**
+     *Creates an instance of SaramAPI.
+     * @param {boolean} [local] Set to true to use http://localhost:5001/
+     * @param {string} [baseUrl] Set an arbitrary base url. Make sure to end with `/`
+     * @memberof SaramAPI
+     */
+    function SaramAPI(local, baseUrl) {
         var _this = _super.call(this, {
             token: '',
             local: local || false,
@@ -230,6 +265,8 @@ var SaramAPI = /** @class */ (function (_super) {
         };
         /**
          * Gets an array of all the valid entries
+         *
+         * @returns {AxiosPromise} An Axios promise
          */
         _this.getAllEntries = function () {
             return _this.request({
@@ -239,6 +276,9 @@ var SaramAPI = /** @class */ (function (_super) {
         };
         /**
          * Gets all the data associated with a single entry
+         *
+         * @param {string} token A valid entry token
+         * @returns {AxiosPromise} An Axios promise
          */
         _this.getEntry = function (token) {
             return _this.request({
@@ -248,6 +288,9 @@ var SaramAPI = /** @class */ (function (_super) {
         };
         /**
          * Delete an entry entirely
+         *
+         * @param {string} token A valid entry token
+         * @returns {AxiosPromise} An Axios promise
          */
         _this.deleteEntry = function (token) {
             return _this.request({
@@ -256,7 +299,11 @@ var SaramAPI = /** @class */ (function (_super) {
             });
         };
         /**
+         *
          * Create a new section. This will add to the existing entry.
+         *
+         * @param {CreateNewSection} data
+         * @returns {AxiosPromise} An Axios promise
          */
         _this.createNewSection = function (data) {
             if (!_this.validTypes.includes(data.type)) {
@@ -282,9 +329,13 @@ var SaramAPI = /** @class */ (function (_super) {
         };
         /**
          * Add a comment to an existing section
+         *
+         * @param {string} token The token for the entry
+         * @param {string} dataid The dataid for the section
+         * @param {string} comment Comment to add
+         * @returns {AxiosPromise} An Axios promise
          */
-        _this.addComment = function (_a) {
-            var token = _a.token, dataid = _a.dataid, comment = _a.comment;
+        _this.addComment = function (token, dataid, comment) {
             return _this.request({
                 method: 'patch',
                 url: token + "/" + dataid + "/comment",
@@ -293,9 +344,12 @@ var SaramAPI = /** @class */ (function (_super) {
         };
         /**
          * Delete a section. This will delete a single section in an entry
+         *
+         * @param {string} token A valid toekn for the entry
+         * @param {string} dataid The dataid of the section to delete
+         * @returns {AxiosPromise} An Axios promise
          */
-        _this.deleteSection = function (_a) {
-            var token = _a.token, dataid = _a.dataid;
+        _this.deleteSection = function (token, dataid) {
             return _this.request({
                 method: 'delete',
                 url: token + "/" + dataid
@@ -303,9 +357,13 @@ var SaramAPI = /** @class */ (function (_super) {
         };
         /**
          * Create a new entry. This is a whole new entry to work with
+         *
+         * @param {string} title The title of the entry
+         * @param {string} category A valid category
+         * @param {string} [slackLink] Optional Slack or reference link
+         * @returns {AxiosPromise} An Axios promise
          */
-        _this.createNewEntry = function (_a) {
-            var title = _a.title, category = _a.category, slackLink = _a.slackLink;
+        _this.createNewEntry = function (title, category, slackLink) {
             if (!_this.validCategories.includes(category)) {
                 throw new Error("Not a valid category. Valid categories are " + _this.validCategories);
             }
@@ -325,9 +383,12 @@ var SaramAPI = /** @class */ (function (_super) {
         };
         /**
          * Reset the API key
+         *
+         * @param {string} oldApiKey The current API key
+         * @param {string} username The current username
+         * @returns {AxiosPromise}
          */
-        _this.resetApiKey = function (_a) {
-            var oldApiKey = _a.oldApiKey, username = _a.username;
+        _this.resetApiKey = function (oldApiKey, username) {
             var payload = {
                 apiKey: oldApiKey,
                 username: username
@@ -341,9 +402,13 @@ var SaramAPI = /** @class */ (function (_super) {
         /**
          * Changes the username. Accepts a valid API key, a valid
          * current username and the new username. Returns a new username
+         *
+         * @param {string} apiKey A valid API key
+         * @param {string} oldUserName The previous username
+         * @param {string} newUserName The new username
+         * @returns {AxiosPromise} An Axios promise
          */
-        _this.changeUserName = function (_a) {
-            var apiKey = _a.apiKey, oldUserName = _a.oldUserName, newUserName = _a.newUserName;
+        _this.changeUserName = function (apiKey, oldUserName, newUserName) {
             return _this.request({
                 method: 'post',
                 url: 'reset/username',
@@ -357,6 +422,9 @@ var SaramAPI = /** @class */ (function (_super) {
         /**
          * Validates an API key, and returns the key and associated
          * username on success.
+         *
+         * @param {string} apiKey A valid API key
+         * @returns {AxiosPromise} an Axios promise
          */
         _this.validateApiKey = function (apiKey) {
             return axios_1["default"]({
@@ -366,7 +434,11 @@ var SaramAPI = /** @class */ (function (_super) {
             });
         };
         /**
-         * Generate a valid token
+         * Generate a valid token. These can be used for testing
+         * or for other methods that require a valid token
+         *
+         * @param {string} title The title of the section/challenge
+         * @returns {string} a valid token
          */
         _this.getValidToken = function (title) {
             return _this._generateToken(title);
