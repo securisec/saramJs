@@ -53,6 +53,7 @@ import { Saram } from 'saramjs'
 ```
 
 ## Docs
+Docs are available [here](https://saramjs.docs.securisec.net)
 To generate docs using [Typedoc](https://typedoc.org/), use 
 ```
 npm run docs
