@@ -15,6 +15,30 @@ interface optionsObject {
 	marked: number;
 }
 
+interface commentInterface {
+	/**
+	 *Comment text
+	 *
+	 * @type {string}
+	 * @memberof commentObject
+	 */
+	text: string
+	/**
+	 *Username 
+	 *
+	 * @type {string}
+	 * @memberof commentObject
+	 */
+	username: string
+	/**
+	 *Link of the avatar
+	 *
+	 * @type {string}
+	 * @memberof commentObject
+	 */
+	avatar: string
+}
+
 interface saramObject {
 	/**
 	 *Auto generated id
@@ -51,7 +75,13 @@ interface saramObject {
 	 * @memberof saramObject
 	 */
 	user: string;
-	comment: Array<string>;
+	/**
+	 *The comments object. Object includes username, text and avatar
+	 *
+	 * @type {Array<commentInterface>}
+	 * @memberof saramObject
+	 */
+	comment: Array<commentInterface>;
 	/**
 	 * Options object
 	 *
@@ -115,6 +145,7 @@ interface methodTypes {
 class Saram {
 	private token: string;
 	private local?: boolean;
+	avatar: string;
 	key: string;
 	user: string;
 	configPath: string;
@@ -131,6 +162,7 @@ class Saram {
 		this.token = options.token;
 		this.user = '';
 		this.key = '';
+		this.avatar = '';
 		this.local = options.local || false;
 		this.baseUrl = options.baseUrl;
 		this.url = `${this.checkDev()}api/${this.token}`;
@@ -143,7 +175,11 @@ class Saram {
 			type: '',
 			output: '',
 			command: '',
-			comment: [ 'SaramJs' ],
+			comment: [{
+				text: 'saramJs',
+				username: this.user,
+				avatar: this.avatar
+			}],
 			options: {
 				marked: 2
 			},
@@ -163,14 +199,16 @@ class Saram {
 			);
 			this.key = c.apiKey;
 			this.user = c.username;
+			this.avatar = c.avatar || '/static/saramjs.png'
 		} catch (error) {}
 	};
 
 	private checkDev = (): void => {
 		let getUrl = (url: string): void => {
 			this.baseUrl = url;
-			this.url = `${url}${this.token}`;
+			this.url = `${url}api/${this.token}`;
 		};
+
 		if (this.local) {
 			getUrl('http://localhost:5001/');
 		}
@@ -205,7 +243,11 @@ class Saram {
 		this.saramObject.output = output;
 		this.saramObject.type = 'script';
 		if (params.comment) {
-			this.saramObject.comment.push(params.comment);
+			this.saramObject.comment.push({
+				text: params.comment,
+				username: this.user,
+				avatar: this.avatar
+			});
 		}
 		console.log(output);
 		return this;
@@ -226,7 +268,11 @@ class Saram {
 		this.saramObject.output = output;
 		this.saramObject.type = 'file';
 		if (params.comment) {
-			this.saramObject.comment.push(params.comment);
+			this.saramObject.comment.push({
+				text: params.comment,
+				username: this.user,
+				avatar: this.avatar
+			});
 		}
 		console.log(output);
 		return this;
@@ -244,7 +290,11 @@ class Saram {
 		this.saramObject.output = variable;
 		this.saramObject.type = 'script';
 		if (params.comment) {
-			this.saramObject.comment.push(params.comment);
+			this.saramObject.comment.push({
+				text: params.comment,
+				username: this.user,
+				avatar: this.avatar
+			});
 		}
 		console.log(variable);
 		return this;
@@ -264,7 +314,11 @@ class Saram {
 		this.saramObject.output = clean;
 		this.saramObject.type = 'stdout';
 		if (params.comment) {
-			this.saramObject.comment.push(params.comment);
+			this.saramObject.comment.push({
+				text: params.comment,
+				username: this.user,
+				avatar: this.avatar
+			});
 		}
 		console.log(clean);
 		return this;
@@ -343,6 +397,12 @@ class SaramInit extends Saram {
 }
 
 interface CreateNewSection {
+	/**
+	 *The token for the entry. Each entry has a unique token
+	 *
+	 * @type {string}
+	 * @memberof CreateNewSection
+	 */
 	token: string;
 	/**
 	 * What type of output is it? Valid types are 
@@ -373,7 +433,7 @@ interface CreateNewSection {
 	 * @type {Array<string>}
 	 * @memberof CreateNewSection
 	 */
-	comment?: Array<string>;
+	comment?: Array<commentInterface>;
 }
 
 /**
@@ -402,7 +462,7 @@ class SaramAPI extends Saram {
 			'x-saram-apikey': this.key,
 			'x-saram-username': this.user
 		};
-		this.apiUrl = `${this.url}api/`;
+		this.apiUrl = `${this.url}`;
 		this.request = Axios.create({
 			headers: this.headers,
 			baseURL: this.apiUrl
@@ -492,7 +552,11 @@ class SaramAPI extends Saram {
 			output: data.output,
 			command: data.command,
 			user: this.user,
-			comment: data.comment || [ 'saramJs' ],
+			comment: [{
+				text: data.comment,
+				username: this.user,
+				avatar: this.avatar
+			}],
 			options: {
 				marked: 2
 			},
@@ -517,7 +581,11 @@ class SaramAPI extends Saram {
 		return this.request({
 			method: 'patch',
 			url: `${token}/${dataid}/comment`,
-			data: { data: comment }
+			data: { data: {
+				text: comment,
+				username: this.user,
+				avatar: this.avatar
+			} }
 		});
 	};
 

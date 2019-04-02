@@ -13,6 +13,11 @@ const os_1 = require("os");
  * The main class for Saram. token and user values are required.
  */
 class Saram {
+    /**
+     *Creates an instance of Saram.
+     * @param {init} options
+     * @memberof Saram
+     */
     constructor(options) {
         /**
          * Reads the sets various values from the local Saram conf file
@@ -24,13 +29,14 @@ class Saram {
                 }));
                 this.key = c.apiKey;
                 this.user = c.username;
+                this.avatar = c.avatar || '/static/saramjs.png';
             }
             catch (error) { }
         };
         this.checkDev = () => {
             let getUrl = (url) => {
                 this.baseUrl = url;
-                this.url = `${url}${this.token}`;
+                this.url = `${url}api/${this.token}`;
             };
             if (this.local) {
                 getUrl('http://localhost:5001/');
@@ -51,6 +57,9 @@ class Saram {
         /**
          * Reads the contents of the whole script this method is called
          * in and makes it available to send to the Saram server
+         *
+         * @param {methodTypes} [params={}]
+         * @returns {Saram}
          */
         this.readScriptSelf = (params = {}) => {
             let scriptPath = process.argv[1];
@@ -61,14 +70,22 @@ class Saram {
             this.saramObject.output = output;
             this.saramObject.type = 'script';
             if (params.comment) {
-                this.saramObject.comment.push(params.comment);
+                this.saramObject.comment.push({
+                    text: params.comment,
+                    username: this.user,
+                    avatar: this.avatar
+                });
             }
             console.log(output);
             return this;
         };
         /**
-       * Method that returns the whole file of the file it is called in.
-       */
+         * Method that returns the whole file of the file it is called in.
+         *
+         * @param {string} filePath A valid file path to read. Will not work with binary files
+         * @param {methodTypes} [params={}] Optionally set a comment with `comment` param
+         * @returns {Saram}
+         */
         this.readFileContent = (filePath, params = {}) => {
             let output = fs_1.readFileSync(filePath, {
                 encoding: 'utf8'
@@ -77,27 +94,43 @@ class Saram {
             this.saramObject.output = output;
             this.saramObject.type = 'file';
             if (params.comment) {
-                this.saramObject.comment.push(params.comment);
+                this.saramObject.comment.push({
+                    text: params.comment,
+                    username: this.user,
+                    avatar: this.avatar
+                });
             }
             console.log(output);
             return this;
         };
         /**
-       * Function will send the variable of a JS/TS file to the server
-       */
+         * Function will send the variable of a JS/TS file to the server
+         *
+         * @param {*} variable The output from any script variable
+         * @param {methodTypes} [params={}] Optionally set a comment with `comment` param
+         * @returns {Saram}
+         */
         this.variableOutput = (variable, params = {}) => {
             this.saramObject.command = params.scriptName || 'Script';
             this.saramObject.output = variable;
             this.saramObject.type = 'script';
             if (params.comment) {
-                this.saramObject.comment.push(params.comment);
+                this.saramObject.comment.push({
+                    text: params.comment,
+                    username: this.user,
+                    avatar: this.avatar
+                });
             }
             console.log(variable);
             return this;
         };
         /**
-       * Send the output of a command line command to the server
-       */
+         * Send the output of a command line command to the server
+         *
+         * @param {string} command The command to run
+         * @param {methodTypes} [params={}] Optionally set a comment with `comment` param
+         * @returns {Saram}
+         */
         this.runCommand = (command, params = {}) => {
             let stdout = child_process_1.execSync(command).toString();
             let clean = this.cleanOutput(stdout);
@@ -105,7 +138,11 @@ class Saram {
             this.saramObject.output = clean;
             this.saramObject.type = 'stdout';
             if (params.comment) {
-                this.saramObject.comment.push(params.comment);
+                this.saramObject.comment.push({
+                    text: params.comment,
+                    username: this.user,
+                    avatar: this.avatar
+                });
             }
             console.log(clean);
             return this;
@@ -132,11 +169,14 @@ class Saram {
         };
         /**
        * Alias for sendToServer
-       */
+         *
+         * @memberof Saram
+         */
         this.send = this.sendToServer;
         this.token = options.token;
         this.user = '';
         this.key = '';
+        this.avatar = '';
         this.local = options.local || false;
         this.baseUrl = options.baseUrl;
         this.url = `${this.checkDev()}api/${this.token}`;
@@ -149,7 +189,11 @@ class Saram {
             type: '',
             output: '',
             command: '',
-            comment: ['SaramJs'],
+            comment: [{
+                    text: 'saramJs',
+                    username: this.user,
+                    avatar: this.avatar
+                }],
             options: {
                 marked: 2
             },
@@ -163,7 +207,14 @@ exports.Saram = Saram;
  * which all Saram extentions/modules etc relies on.
  */
 class SaramInit extends Saram {
-    constructor({ apiKey, local, baseUrl }) {
+    /**
+     *Creates an instance of SaramInit.
+     * @param {string} apiKey
+     * @param {boolean} [local] Set to true to use http://localhost:5001/
+     * @param {string} [baseUrl] Set an arbitrary base url. Make sure to end with `/`
+     * @memberof SaramInit
+     */
+    constructor(apiKey, local, baseUrl) {
         super({
             token: '',
             local: local || false,
@@ -174,6 +225,8 @@ class SaramInit extends Saram {
     /**
      * The init method will create a `.saram.conf` file in the users
      * home directory using a valid API key and username.
+     *
+     * @memberof SaramInit
      */
     init() {
         axios_1.default.post(`${this.url}misc/valid/key`, {
@@ -193,7 +246,13 @@ exports.SaramInit = SaramInit;
  * This class makes the whole API for Saram available.
  */
 class SaramAPI extends Saram {
-    constructor({ local, baseUrl }) {
+    /**
+     *Creates an instance of SaramAPI.
+     * @param {boolean} [local] Set to true to use http://localhost:5001/
+     * @param {string} [baseUrl] Set an arbitrary base url. Make sure to end with `/`
+     * @memberof SaramAPI
+     */
+    constructor(local, baseUrl) {
         super({
             token: '',
             local: local || false,
@@ -209,6 +268,8 @@ class SaramAPI extends Saram {
         };
         /**
          * Gets an array of all the valid entries
+         *
+         * @returns {AxiosPromise} An Axios promise
          */
         this.getAllEntries = () => {
             return this.request({
@@ -218,6 +279,9 @@ class SaramAPI extends Saram {
         };
         /**
          * Gets all the data associated with a single entry
+         *
+         * @param {string} token A valid entry token
+         * @returns {AxiosPromise} An Axios promise
          */
         this.getEntry = (token) => {
             return this.request({
@@ -227,6 +291,9 @@ class SaramAPI extends Saram {
         };
         /**
          * Delete an entry entirely
+         *
+         * @param {string} token A valid entry token
+         * @returns {AxiosPromise} An Axios promise
          */
         this.deleteEntry = (token) => {
             return this.request({
@@ -235,7 +302,11 @@ class SaramAPI extends Saram {
             });
         };
         /**
+         *
          * Create a new section. This will add to the existing entry.
+         *
+         * @param {CreateNewSection} data
+         * @returns {AxiosPromise} An Axios promise
          */
         this.createNewSection = (data) => {
             if (!this.validTypes.includes(data.type)) {
@@ -247,7 +318,11 @@ class SaramAPI extends Saram {
                 output: data.output,
                 command: data.command,
                 user: this.user,
-                comment: data.comment || ['saramJs'],
+                comment: [{
+                        text: data.comment,
+                        username: this.user,
+                        avatar: this.avatar
+                    }],
                 options: {
                     marked: 2
                 },
@@ -261,18 +336,31 @@ class SaramAPI extends Saram {
         };
         /**
          * Add a comment to an existing section
+         *
+         * @param {string} token The token for the entry
+         * @param {string} dataid The dataid for the section
+         * @param {string} comment Comment to add
+         * @returns {AxiosPromise} An Axios promise
          */
-        this.addComment = ({ token, dataid, comment }) => {
+        this.addComment = (token, dataid, comment) => {
             return this.request({
                 method: 'patch',
                 url: `${token}/${dataid}/comment`,
-                data: { data: comment }
+                data: { data: {
+                        text: comment,
+                        username: this.user,
+                        avatar: this.avatar
+                    } }
             });
         };
         /**
          * Delete a section. This will delete a single section in an entry
+         *
+         * @param {string} token A valid toekn for the entry
+         * @param {string} dataid The dataid of the section to delete
+         * @returns {AxiosPromise} An Axios promise
          */
-        this.deleteSection = ({ token, dataid }) => {
+        this.deleteSection = (token, dataid) => {
             return this.request({
                 method: 'delete',
                 url: `${token}/${dataid}`
@@ -280,8 +368,13 @@ class SaramAPI extends Saram {
         };
         /**
          * Create a new entry. This is a whole new entry to work with
+         *
+         * @param {string} title The title of the entry
+         * @param {string} category A valid category
+         * @param {string} [slackLink] Optional Slack or reference link
+         * @returns {AxiosPromise} An Axios promise
          */
-        this.createNewEntry = ({ title, category, slackLink }) => {
+        this.createNewEntry = (title, category, slackLink) => {
             if (!this.validCategories.includes(category)) {
                 throw new Error(`Not a valid category. Valid categories are ${this.validCategories}`);
             }
@@ -301,8 +394,12 @@ class SaramAPI extends Saram {
         };
         /**
          * Reset the API key
+         *
+         * @param {string} oldApiKey The current API key
+         * @param {string} username The current username
+         * @returns {AxiosPromise}
          */
-        this.resetApiKey = ({ oldApiKey, username }) => {
+        this.resetApiKey = (oldApiKey, username) => {
             let payload = {
                 apiKey: oldApiKey,
                 username: username
@@ -316,8 +413,13 @@ class SaramAPI extends Saram {
         /**
          * Changes the username. Accepts a valid API key, a valid
          * current username and the new username. Returns a new username
+         *
+         * @param {string} apiKey A valid API key
+         * @param {string} oldUserName The previous username
+         * @param {string} newUserName The new username
+         * @returns {AxiosPromise} An Axios promise
          */
-        this.changeUserName = ({ apiKey, oldUserName, newUserName }) => {
+        this.changeUserName = (apiKey, oldUserName, newUserName) => {
             return this.request({
                 method: 'post',
                 url: 'reset/username',
@@ -331,6 +433,9 @@ class SaramAPI extends Saram {
         /**
          * Validates an API key, and returns the key and associated
          * username on success.
+         *
+         * @param {string} apiKey A valid API key
+         * @returns {AxiosPromise} an Axios promise
          */
         this.validateApiKey = (apiKey) => {
             return axios_1.default({
@@ -340,7 +445,11 @@ class SaramAPI extends Saram {
             });
         };
         /**
-         * Generate a valid token
+         * Generate a valid token. These can be used for testing
+         * or for other methods that require a valid token
+         *
+         * @param {string} title The title of the section/challenge
+         * @returns {string} a valid token
          */
         this.getValidToken = (title) => {
             return this._generateToken(title);
@@ -349,7 +458,7 @@ class SaramAPI extends Saram {
             'x-saram-apikey': this.key,
             'x-saram-username': this.user
         };
-        this.apiUrl = `${this.url}api/`;
+        this.apiUrl = `${this.url}`;
         this.request = axios_1.default.create({
             headers: this.headers,
             baseURL: this.apiUrl
