@@ -21,43 +21,18 @@ var child_process_1 = require("child_process");
 var os_1 = require("os");
 /**
  * The main class for Saram. token and user values are required.
+ * If the .saram.conf file is not found in the home directory, it
+ * will throw an error.
  */
 var Saram = /** @class */ (function () {
     /**
-     *Creates an instance of Saram.
-     * @param {init} options
-     * @memberof Saram
+     * Token of the entry to work with
+     *
+     * @type {string}
+     * @memberof init
      */
-    function Saram(options) {
+    function Saram(token) {
         var _this = this;
-        /**
-         * Reads the sets various values from the local Saram conf file
-         */
-        this.readConfig = function () {
-            try {
-                var c = JSON.parse(fs_1.readFileSync(_this.configPath, {
-                    encoding: 'utf8'
-                }));
-                _this.key = c.apiKey;
-                _this.user = c.username;
-            }
-            catch (error) { }
-        };
-        this.checkDev = function () {
-            var getUrl = function (url) {
-                _this.baseUrl = url;
-                _this.url = "" + url + _this.token;
-            };
-            if (_this.local) {
-                getUrl('http://localhost:5001/');
-            }
-            else if (_this.baseUrl) {
-                getUrl(_this.baseUrl);
-            }
-            else {
-                getUrl('https://saram.securisecctf.com/');
-            }
-        };
         /**
          * Strips out ansii color escape codes from stdout
          */
@@ -81,7 +56,11 @@ var Saram = /** @class */ (function () {
             _this.saramObject.output = output;
             _this.saramObject.type = 'script';
             if (params.comment) {
-                _this.saramObject.comment.push(params.comment);
+                _this.saramObject.comment.push({
+                    text: params.comment,
+                    username: _this.user,
+                    avatar: _this.avatar
+                });
             }
             console.log(output);
             return _this;
@@ -102,7 +81,11 @@ var Saram = /** @class */ (function () {
             _this.saramObject.output = output;
             _this.saramObject.type = 'file';
             if (params.comment) {
-                _this.saramObject.comment.push(params.comment);
+                _this.saramObject.comment.push({
+                    text: params.comment,
+                    username: _this.user,
+                    avatar: _this.avatar
+                });
             }
             console.log(output);
             return _this;
@@ -120,7 +103,11 @@ var Saram = /** @class */ (function () {
             _this.saramObject.output = variable;
             _this.saramObject.type = 'script';
             if (params.comment) {
-                _this.saramObject.comment.push(params.comment);
+                _this.saramObject.comment.push({
+                    text: params.comment,
+                    username: _this.user,
+                    avatar: _this.avatar
+                });
             }
             console.log(variable);
             return _this;
@@ -140,7 +127,11 @@ var Saram = /** @class */ (function () {
             _this.saramObject.output = clean;
             _this.saramObject.type = 'stdout';
             if (params.comment) {
-                _this.saramObject.comment.push(params.comment);
+                _this.saramObject.comment.push({
+                    text: params.comment,
+                    username: _this.user,
+                    avatar: _this.avatar
+                });
             }
             console.log(clean);
             return _this;
@@ -170,22 +161,29 @@ var Saram = /** @class */ (function () {
          * @memberof Saram
          */
         this.send = this.sendToServer;
-        this.token = options.token;
-        this.user = '';
-        this.key = '';
-        this.local = options.local || false;
-        this.baseUrl = options.baseUrl;
-        this.url = this.checkDev() + "api/" + this.token;
+        this.token = token;
         this.configPath = os_1.homedir() + "/.saram.conf";
-        this.checkDev();
-        this.readConfig();
+        var c = JSON.parse(fs_1.readFileSync(this.configPath, {
+            encoding: 'utf8'
+        }));
+        this.key = c.apiKey;
+        this.user = c.username;
+        this.baseUrl = c.base_url;
+        this.url = this.baseUrl + "api/" + this.token;
+        this.avatar = c.avatar || '/static/saramjs.png';
         this.saramObject = {
             id: v1_1["default"](),
             user: this.user,
             type: '',
             output: '',
             command: '',
-            comment: ['SaramJs'],
+            comment: [
+                {
+                    text: 'saramJs',
+                    username: this.user,
+                    avatar: this.avatar
+                }
+            ],
             options: {
                 marked: 2
             },
@@ -199,23 +197,27 @@ exports.Saram = Saram;
  * This class is intended to create the local `.saram.conf` file
  * which all Saram extentions/modules etc relies on.
  */
-var SaramInit = /** @class */ (function (_super) {
-    __extends(SaramInit, _super);
+var SaramInit = /** @class */ (function () {
     /**
      *Creates an instance of SaramInit.
-     * @param {string} apiKey
-     * @param {boolean} [local] Set to true to use http://localhost:5001/
-     * @param {string} [baseUrl] Set an arbitrary base url. Make sure to end with `/`
-     * @memberof SaramInit
+     * @param {string} apiKey a valid api key
+     * @param {boolean} [local] set to true to use localhost as base url
+     * @param {string} [base_url] set the base url. Otherwise the default Saram url is used
      */
-    function SaramInit(apiKey, local, baseUrl) {
-        var _this = _super.call(this, {
-            token: '',
-            local: local || false,
-            baseUrl: baseUrl || ''
-        }) || this;
-        _this.apiKey = apiKey;
-        return _this;
+    function SaramInit(_a) {
+        var apiKey = _a.apiKey, local = _a.local, base_url = _a.base_url;
+        this.apiKey = apiKey;
+        this.local = local || false;
+        if (this.local) {
+            this.base_url = 'http://localhost:5001/';
+        }
+        else if (base_url) {
+            this.base_url = base_url;
+        }
+        else {
+            this.base_url = 'https://app.saram.io/';
+        }
+        this.configPath = os_1.homedir() + "/.saram.conf";
     }
     /**
      * The init method will create a `.saram.conf` file in the users
@@ -225,18 +227,21 @@ var SaramInit = /** @class */ (function (_super) {
      */
     SaramInit.prototype.init = function () {
         var _this = this;
-        axios_1["default"].post(this.url + "misc/valid/key", {
+        var url = this.base_url + "misc/valid/key";
+        axios_1["default"].post(url, {
             key: this.apiKey
         })
             .then(function (res) {
-            fs_1.writeFileSync(_this.configPath, JSON.stringify(res.data), {
+            var conf = res.data;
+            conf.base_url = _this.base_url;
+            fs_1.writeFileSync(_this.configPath, JSON.stringify(conf), {
                 encoding: 'utf8'
             });
             console.log("Created " + _this.configPath);
         })["catch"](function (error) { return console.log('API key is not valid'); });
     };
     return SaramInit;
-}(Saram));
+}());
 exports.SaramInit = SaramInit;
 /**
  * This class makes the whole API for Saram available.
@@ -245,16 +250,10 @@ var SaramAPI = /** @class */ (function (_super) {
     __extends(SaramAPI, _super);
     /**
      *Creates an instance of SaramAPI.
-     * @param {boolean} [local] Set to true to use http://localhost:5001/
-     * @param {string} [baseUrl] Set an arbitrary base url. Make sure to end with `/`
      * @memberof SaramAPI
      */
-    function SaramAPI(local, baseUrl) {
-        var _this = _super.call(this, {
-            token: '',
-            local: local || false,
-            baseUrl: baseUrl || ''
-        }) || this;
+    function SaramAPI() {
+        var _this = _super.call(this, '') || this;
         /**
          * Private method that generates a valid token
          */
@@ -315,7 +314,13 @@ var SaramAPI = /** @class */ (function (_super) {
                 output: data.output,
                 command: data.command,
                 user: _this.user,
-                comment: data.comment || ['saramJs'],
+                comment: [
+                    {
+                        text: data.comment,
+                        username: _this.user,
+                        avatar: _this.avatar
+                    }
+                ],
                 options: {
                     marked: 2
                 },
@@ -339,7 +344,13 @@ var SaramAPI = /** @class */ (function (_super) {
             return _this.request({
                 method: 'patch',
                 url: token + "/" + dataid + "/comment",
-                data: { data: comment }
+                data: {
+                    data: {
+                        text: comment,
+                        username: _this.user,
+                        avatar: _this.avatar
+                    }
+                }
             });
         };
         /**
@@ -447,7 +458,7 @@ var SaramAPI = /** @class */ (function (_super) {
             'x-saram-apikey': _this.key,
             'x-saram-username': _this.user
         };
-        _this.apiUrl = _this.url + "api/";
+        _this.apiUrl = "" + _this.url;
         _this.request = axios_1["default"].create({
             headers: _this.headers,
             baseURL: _this.apiUrl

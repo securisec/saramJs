@@ -22,21 +22,21 @@ interface commentInterface {
 	 * @type {string}
 	 * @memberof commentObject
 	 */
-	text: string
+	text: string;
 	/**
 	 *Username 
 	 *
 	 * @type {string}
 	 * @memberof commentObject
 	 */
-	username: string
+	username: string;
 	/**
 	 *Link of the avatar
 	 *
 	 * @type {string}
 	 * @memberof commentObject
 	 */
-	avatar: string
+	avatar: string;
 }
 
 interface saramObject {
@@ -98,30 +98,6 @@ interface saramObject {
 	time: string;
 }
 
-interface init {
-	/**
-	 * Token of the entry to work with
-	 *
-	 * @type {string}
-	 * @memberof init
-	 */
-	token: string;
-	/**
-	 * Set local to `true` to use localhost:5001 as host
-	 *
-	 * @type {boolean}
-	 * @memberof init
-	 */
-	local?: boolean;
-	/**
-	 * Optionally set a different baseUrl other than localhost or saram.securisecctf
-	 *
-	 * @type {string}
-	 * @memberof init
-	 */
-	baseUrl?: string;
-}
-
 interface methodTypes {
 	/**
 	 * Optional comment string
@@ -141,84 +117,57 @@ interface methodTypes {
 
 /**
  * The main class for Saram. token and user values are required.
+ * If the .saram.conf file is not found in the home directory, it 
+ * will throw an error.
  */
 class Saram {
 	private token: string;
-	private local?: boolean;
 	avatar: string;
 	key: string;
 	user: string;
 	configPath: string;
-	baseUrl?: string;
+	baseUrl: string;
 	url: string;
 	saramObject: saramObject;
 
 	/**
-	 *Creates an instance of Saram.
-	 * @param {init} options
-	 * @memberof Saram
+	 * Token of the entry to work with
+	 *
+	 * @type {string}
+	 * @memberof init
 	 */
-	constructor (options: init) {
-		this.token = options.token;
-		this.user = '';
-		this.key = '';
-		this.avatar = '';
-		this.local = options.local || false;
-		this.baseUrl = options.baseUrl;
-		this.url = `${this.checkDev()}api/${this.token}`;
+	constructor (token: string) {
+		this.token = token;
 		this.configPath = `${homedir()}/.saram.conf`;
-		this.checkDev();
-		this.readConfig();
+		let c = JSON.parse(
+			readFileSync(this.configPath, {
+				encoding: 'utf8'
+			})
+		);
+		this.key = c.apiKey;
+		this.user = c.username;
+		this.baseUrl = c.base_url;
+		this.url = `${this.baseUrl}api/${this.token}`
+		this.avatar = c.avatar || '/static/saramjs.png';
 		this.saramObject = {
 			id: uuid(),
 			user: this.user,
 			type: '',
 			output: '',
 			command: '',
-			comment: [{
-				text: 'saramJs',
-				username: this.user,
-				avatar: this.avatar
-			}],
+			comment: [
+				{
+					text: 'saramJs',
+					username: this.user,
+					avatar: this.avatar
+				}
+			],
 			options: {
 				marked: 2
 			},
 			time: new Date().toUTCString()
 		};
 	}
-
-	/**
-	 * Reads the sets various values from the local Saram conf file
-	 */
-	private readConfig = () => {
-		try {
-			let c = JSON.parse(
-				readFileSync(this.configPath, {
-					encoding: 'utf8'
-				})
-			);
-			this.key = c.apiKey;
-			this.user = c.username;
-			this.avatar = c.avatar || '/static/saramjs.png'
-		} catch (error) {}
-	};
-
-	private checkDev = (): void => {
-		let getUrl = (url: string): void => {
-			this.baseUrl = url;
-			this.url = `${url}api/${this.token}`;
-		};
-
-		if (this.local) {
-			getUrl('http://localhost:5001/');
-		}
-		else if (this.baseUrl) {
-			getUrl(this.baseUrl);
-		}
-		else {
-			getUrl('https://saram.securisecctf.com/');
-		}
-	};
 
 	/**
 	 * Strips out ansii color escape codes from stdout
@@ -357,23 +306,29 @@ class Saram {
  * This class is intended to create the local `.saram.conf` file 
  * which all Saram extentions/modules etc relies on.
  */
-class SaramInit extends Saram {
+class SaramInit {
 	private apiKey: string;
+	private local?: boolean;
+	private base_url?: string;
+	private configPath: string;
 
 	/**
 	 *Creates an instance of SaramInit.
-	 * @param {string} apiKey
-	 * @param {boolean} [local] Set to true to use http://localhost:5001/
-	 * @param {string} [baseUrl] Set an arbitrary base url. Make sure to end with `/`
-	 * @memberof SaramInit
+	 * @param {string} apiKey a valid api key
+	 * @param {boolean} [local] set to true to use localhost as base url 
+	 * @param {string} [base_url] set the base url. Otherwise the default Saram url is used 
 	 */
-	constructor (apiKey: string, local?: boolean, baseUrl?: string) {
-		super({
-			token: '',
-			local: local || false,
-			baseUrl: baseUrl || ''
-		});
+	constructor ({apiKey, local, base_url}: {apiKey: string, local?: boolean, base_url?: string}) {
 		this.apiKey = apiKey;
+		this.local = local || false
+		if (this.local) {
+			this.base_url = 'http://localhost:5001/'
+		} else if (base_url) {
+			this.base_url = base_url
+		} else {
+			this.base_url = 'https://app.saram.io/'
+		}
+		this.configPath = `${homedir()}/.saram.conf`;
 	}
 
 	/**
@@ -383,11 +338,14 @@ class SaramInit extends Saram {
 	 * @memberof SaramInit
 	 */
 	init (): void {
-		Axios.post(`${this.url}misc/valid/key`, {
+		let url = `${this.base_url}misc/valid/key`
+		Axios.post(url, {
 			key: this.apiKey
 		})
 			.then((res) => {
-				writeFileSync(this.configPath, JSON.stringify(res.data), {
+				let conf = res.data
+				conf.base_url = this.base_url
+				writeFileSync(this.configPath, JSON.stringify(conf), {
 					encoding: 'utf8'
 				});
 				console.log(`Created ${this.configPath}`);
@@ -448,16 +406,10 @@ class SaramAPI extends Saram {
 
 	/**
 	 *Creates an instance of SaramAPI.
-	 * @param {boolean} [local] Set to true to use http://localhost:5001/
-	 * @param {string} [baseUrl] Set an arbitrary base url. Make sure to end with `/`
 	 * @memberof SaramAPI
 	 */
-	constructor (local?: boolean, baseUrl?: string) {
-		super({
-			token: '',
-			local: local || false,
-			baseUrl: baseUrl || ''
-		});
+	constructor () {
+		super('');
 		this.headers = {
 			'x-saram-apikey': this.key,
 			'x-saram-username': this.user
@@ -552,11 +504,13 @@ class SaramAPI extends Saram {
 			output: data.output,
 			command: data.command,
 			user: this.user,
-			comment: [{
-				text: data.comment,
-				username: this.user,
-				avatar: this.avatar
-			}],
+			comment: [
+				{
+					text: data.comment,
+					username: this.user,
+					avatar: this.avatar
+				}
+			],
 			options: {
 				marked: 2
 			},
@@ -581,11 +535,13 @@ class SaramAPI extends Saram {
 		return this.request({
 			method: 'patch',
 			url: `${token}/${dataid}/comment`,
-			data: { data: {
-				text: comment,
-				username: this.user,
-				avatar: this.avatar
-			} }
+			data: {
+				data: {
+					text: comment,
+					username: this.user,
+					avatar: this.avatar
+				}
+			}
 		});
 	};
 

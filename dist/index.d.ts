@@ -89,29 +89,6 @@ interface saramObject {
      */
     time: string;
 }
-interface init {
-    /**
-     * Token of the entry to work with
-     *
-     * @type {string}
-     * @memberof init
-     */
-    token: string;
-    /**
-     * Set local to `true` to use localhost:5001 as host
-     *
-     * @type {boolean}
-     * @memberof init
-     */
-    local?: boolean;
-    /**
-     * Optionally set a different baseUrl other than localhost or saram.securisecctf
-     *
-     * @type {string}
-     * @memberof init
-     */
-    baseUrl?: string;
-}
 interface methodTypes {
     /**
      * Optional comment string
@@ -130,28 +107,25 @@ interface methodTypes {
 }
 /**
  * The main class for Saram. token and user values are required.
+ * If the .saram.conf file is not found in the home directory, it
+ * will throw an error.
  */
 declare class Saram {
     private token;
-    private local?;
     avatar: string;
     key: string;
     user: string;
     configPath: string;
-    baseUrl?: string;
+    baseUrl: string;
     url: string;
     saramObject: saramObject;
     /**
-     *Creates an instance of Saram.
-     * @param {init} options
-     * @memberof Saram
+     * Token of the entry to work with
+     *
+     * @type {string}
+     * @memberof init
      */
-    constructor(options: init);
-    /**
-     * Reads the sets various values from the local Saram conf file
-     */
-    private readConfig;
-    private checkDev;
+    constructor(token: string);
     /**
      * Strips out ansii color escape codes from stdout
      */
@@ -203,16 +177,22 @@ declare class Saram {
  * This class is intended to create the local `.saram.conf` file
  * which all Saram extentions/modules etc relies on.
  */
-declare class SaramInit extends Saram {
+declare class SaramInit {
     private apiKey;
+    private local?;
+    private base_url?;
+    private configPath;
     /**
      *Creates an instance of SaramInit.
-     * @param {string} apiKey
-     * @param {boolean} [local] Set to true to use http://localhost:5001/
-     * @param {string} [baseUrl] Set an arbitrary base url. Make sure to end with `/`
-     * @memberof SaramInit
+     * @param {string} apiKey a valid api key
+     * @param {boolean} [local] set to true to use localhost as base url
+     * @param {string} [base_url] set the base url. Otherwise the default Saram url is used
      */
-    constructor(apiKey: string, local?: boolean, baseUrl?: string);
+    constructor({ apiKey, local, base_url }: {
+        apiKey: string;
+        local?: boolean;
+        base_url?: string;
+    });
     /**
      * The init method will create a `.saram.conf` file in the users
      * home directory using a valid API key and username.
@@ -271,11 +251,9 @@ declare class SaramAPI extends Saram {
     private validCategories;
     /**
      *Creates an instance of SaramAPI.
-     * @param {boolean} [local] Set to true to use http://localhost:5001/
-     * @param {string} [baseUrl] Set an arbitrary base url. Make sure to end with `/`
      * @memberof SaramAPI
      */
-    constructor(local?: boolean, baseUrl?: string);
+    constructor();
     /**
      * Private method that generates a valid token
      */
