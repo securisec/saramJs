@@ -1,6 +1,6 @@
 {
   "name": "saramjs",
-  "version": "1.0.9",
+  "version": "1.0.10",
   "description": "Node lib for Saram",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

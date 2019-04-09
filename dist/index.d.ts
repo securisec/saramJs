@@ -346,5 +346,36 @@ declare class SaramAPI extends Saram {
      * @returns {string} a valid token
      */
     getValidToken: (title: string) => string;
+    /**
+     *Get an arroy of objects of all the users
+     *
+     * @returns {AxiosPromise}
+     */
+    adminGetAllUsers: () => AxiosPromise<any>;
+    /**
+     *Get all the information available for a specific user.
+     *
+     * @param {string} userId A valid user id
+     * @returns {AxiosPromise}
+     */
+    adminFindUser: (userId: string) => AxiosPromise<any>;
+    /**
+     *Create a new user. Returns an AxiosPromise which when resolved will
+     * the created users object.
+     *
+     * @param {string} username A valid username. Sepcial characters/spaces are removed
+     * @param {string} password A valid password. Passwords are stored as a hash
+     * @param {boolean} [isAdmin] `true` if admin. `false` by default
+     * @param {string} [avatar] A valid image URL for the profile image. Defaults to Saram logo.
+     * @returns {AxiosPromise} Axios promise. Resolves to created user object
+     */
+    adminCreateUser: (username: string, password: string, isAdmin?: boolean | undefined, avatar?: string | undefined) => AxiosPromise<any>;
+    /**
+     *Delete a user from the database
+     *
+     * @param {string} userId A valid user id.
+     * @returns {AxiosPromise} An Axios promise
+     */
+    adminDeleteUser: (userId: string) => AxiosPromise<any>;
 }
 export { Saram, SaramInit, SaramAPI };

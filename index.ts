@@ -651,6 +651,72 @@ class SaramAPI extends Saram {
 	getValidToken = (title: string): string => {
 		return this._generateToken(title);
 	};
+
+	/**
+	 *Get an arroy of objects of all the users
+	 *
+	 * @returns {AxiosPromise}
+	 */
+	adminGetAllUsers = (): AxiosPromise => {
+		return this.request({
+			method: 'get',
+			url: 'admin/allusers'
+		})
+	}
+
+	/**
+	 *Get all the information available for a specific user. 
+	 *
+	 * @param {string} userId A valid user id
+	 * @returns {AxiosPromise}
+	 */
+	adminFindUser = (userId: string): AxiosPromise => {
+		return this.request({
+			method: 'get',
+			url: `admin/user?id=${userId}`
+		})
+	}
+
+	/**
+	 *Create a new user. Returns an AxiosPromise which when resolved will 
+	 * the created users object.
+	 *
+	 * @param {string} username A valid username. Sepcial characters/spaces are removed
+	 * @param {string} password A valid password. Passwords are stored as a hash
+	 * @param {boolean} [isAdmin] `true` if admin. `false` by default
+	 * @param {string} [avatar] A valid image URL for the profile image. Defaults to Saram logo.
+	 * @returns {AxiosPromise} Axios promise. Resolves to created user object
+	 */
+	adminCreateUser = (
+		username: string, password: string, isAdmin?: boolean, avatar?: string
+	): AxiosPromise => {
+		return this.request({
+			method: 'post',
+			url: 'admin/user',
+			data: {
+				username: username, 
+				password: password,
+				isAdmin: isAdmin || false,
+				avatar: avatar || ''
+			}
+		})
+	}
+
+	/**
+	 *Delete a user from the database
+	 *
+	 * @param {string} userId A valid user id.
+	 * @returns {AxiosPromise} An Axios promise
+	 */
+	adminDeleteUser = (userId: string): AxiosPromise => {
+		return this.request({
+			method: 'delete',
+			url: 'admin/user',
+			data: {
+				user_id: userId
+			}
+		})
+	}
 }
 
 export { Saram, SaramInit, SaramAPI };

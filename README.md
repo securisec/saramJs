@@ -29,16 +29,14 @@ saramJs relies of obtaining the API key and username from a local config file. T
 const {SaramInit} = require('saramjs')
 SaramInit('yourApiKey').init()
 ```
-This will create the local creds file for you. 
+This will create the local creds file for you. Optionally, pass `base_url` or `local` to true modify the base url that is set. 
 
 ### Javascript
 ```javascript
 // require Saram
 const {Saram} = require('saramjs')
 // Initialize a new Saram instance
-const saram = new saramJs.Saram({
-  token: 'someToken',
-})
+const saram = new saramJs.Saram('someToken')
 
 // Call any avaialble methods using 
 saram.methodName() 
