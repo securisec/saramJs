@@ -193,7 +193,7 @@ class Saram {
 		this.saramObject.type = 'script';
 		if (params.comment) {
 			this.saramObject.comment.push({
-				text: params.comment,
+				text: params.comment || 'saramJs',
 				username: this.user,
 				avatar: this.avatar
 			});
@@ -218,7 +218,7 @@ class Saram {
 		this.saramObject.type = 'file';
 		if (params.comment) {
 			this.saramObject.comment.push({
-				text: params.comment,
+				text: params.comment || 'saramJs',
 				username: this.user,
 				avatar: this.avatar
 			});
@@ -240,7 +240,7 @@ class Saram {
 		this.saramObject.type = 'script';
 		if (params.comment) {
 			this.saramObject.comment.push({
-				text: params.comment,
+				text: params.comment || 'saramJs',
 				username: this.user,
 				avatar: this.avatar
 			});
@@ -264,7 +264,7 @@ class Saram {
 		this.saramObject.type = 'stdout';
 		if (params.comment) {
 			this.saramObject.comment.push({
-				text: params.comment,
+				text: params.comment || 'saramJs',
 				username: this.user,
 				avatar: this.avatar
 			});
@@ -369,7 +369,7 @@ interface CreateNewSection {
 	 * @type {string}
 	 * @memberof CreateNewSection
 	 */
-	type: string;
+	type: 'file' | 'stdout' | 'script' | 'dump' | 'tool' | 'image';
 	/**
 	 * The output that a command generates. This could 
 	 * also be the content of a script or file
@@ -401,8 +401,6 @@ class SaramAPI extends Saram {
 	private headers: object;
 	private request: AxiosInstance;
 	private apiUrl: string;
-	private validTypes: Array<string>;
-	private validCategories: Array<string>;
 
 	/**
 	 *Creates an instance of SaramAPI.
@@ -419,25 +417,6 @@ class SaramAPI extends Saram {
 			headers: this.headers,
 			baseURL: this.apiUrl
 		});
-		this.validTypes = [ 'file', 'stdout', 'script', 'dump', 'tool', 'image' ];
-		this.validCategories = [
-			'android',
-			'cryptography',
-			'firmware',
-			'forensics',
-			'hardware',
-			'ios',
-			'misc',
-			'network',
-			'pcap',
-			'pwn',
-			'reversing',
-			'stego',
-			'web',
-			'none',
-			'other',
-			'scripting'
-		];
 	}
 
 	/**
@@ -488,6 +467,42 @@ class SaramAPI extends Saram {
 	};
 
 	/**
+	 *Update an existing entry.
+	 *
+	 * @memberof SaramAPI
+	 */
+	updateEntry = ({token, description, priority}: {
+		/**
+		 *Valid entry token
+		 *
+		 * @type {string}
+		 */
+		token: string
+		/**
+		 *Optional description for the enrty
+		 *
+		 * @type {string}
+		 */
+		description?: string,
+		/**
+		 *The priorty or risk of the entry. Is used to signify completion also
+		 *
+		 * @type {('info' | 'high' | 'medium' | 'low' | 'critical' | 'complete' | 'none')}
+		 */
+		priority?: 'info' | 'high' | 'medium' | 'low' | 'critical' | 'complete' | 'none'
+	}
+	): AxiosPromise => {
+		return this.request({
+			method: 'post',
+			url: token,
+			data: {
+				description: description,
+				priority: priority || 'none'
+			}
+		})
+	}
+
+	/**
 	 *
 	 * Create a new section. This will add to the existing entry.
 	 *
@@ -495,9 +510,6 @@ class SaramAPI extends Saram {
 	 * @returns {AxiosPromise} An Axios promise
 	 */
 	createNewSection = (data: CreateNewSection): AxiosPromise => {
-		if (!this.validTypes.includes(data.type)) {
-			throw new Error(`Invalid type. Valid types are ${this.validTypes}`);
-		}
 		let payload: object = {
 			id: uuid(),
 			type: data.type,
@@ -506,7 +518,7 @@ class SaramAPI extends Saram {
 			user: this.user,
 			comment: [
 				{
-					text: data.comment,
+					text: data.comment || 'saramJs',
 					username: this.user,
 					avatar: this.avatar
 				}
@@ -537,7 +549,7 @@ class SaramAPI extends Saram {
 			url: `${token}/${dataid}/comment`,
 			data: {
 				data: {
-					text: comment,
+					text: comment || 'saramJs',
 					username: this.user,
 					avatar: this.avatar
 				}
@@ -567,10 +579,9 @@ class SaramAPI extends Saram {
 	 * @param {string} [slackLink] Optional Slack or reference link
 	 * @returns {AxiosPromise} An Axios promise
 	 */
-	createNewEntry = (title: string, category: string, slackLink?: string): AxiosPromise => {
-		if (!this.validCategories.includes(category)) {
-			throw new Error(`Not a valid category. Valid categories are ${this.validCategories}`);
-		}
+	createNewEntry = (title: string, 
+			category: 'android' |'cryptography' |'firmware' |'forensics' |'hardware' |'ios' |'misc' |'network' |'none' |'other' |'pcap' |'pwn' |'reversing' |'scripting' |'stego' |'web'
+		, slackLink?: string): AxiosPromise => {
 		let newToken: string = this._generateToken(title);
 		let payload: object = {
 			title: title,
@@ -715,6 +726,18 @@ class SaramAPI extends Saram {
 			data: {
 				user_id: userId
 			}
+		})
+	}
+
+	/**
+	 *Get an array of all the API interaction logs
+	 *
+	 * @returns {AxiosPromise} An array of log objects
+	 */
+	getLogs = (): AxiosPromise => {
+		return this.request({
+			method: 'get',
+			url: 'admin/logs'
 		})
 	}
 }

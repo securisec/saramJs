@@ -216,7 +216,7 @@ interface CreateNewSection {
      * @type {string}
      * @memberof CreateNewSection
      */
-    type: string;
+    type: 'file' | 'stdout' | 'script' | 'dump' | 'tool' | 'image';
     /**
      * The output that a command generates. This could
      * also be the content of a script or file
@@ -247,8 +247,6 @@ declare class SaramAPI extends Saram {
     private headers;
     private request;
     private apiUrl;
-    private validTypes;
-    private validCategories;
     /**
      *Creates an instance of SaramAPI.
      * @memberof SaramAPI
@@ -278,6 +276,31 @@ declare class SaramAPI extends Saram {
      * @returns {AxiosPromise} An Axios promise
      */
     deleteEntry: (token: string) => AxiosPromise<any>;
+    /**
+     *Update an existing entry.
+     *
+     * @memberof SaramAPI
+     */
+    updateEntry: ({ token, description, priority }: {
+        /**
+         *Valid entry token
+         *
+         * @type {string}
+         */
+        token: string;
+        /**
+         *Optional description for the enrty
+         *
+         * @type {string}
+         */
+        description?: string | undefined;
+        /**
+         *The priorty or risk of the entry. Is used to signify completion also
+         *
+         * @type {('info' | 'high' | 'medium' | 'low' | 'critical' | 'complete' | 'none')}
+         */
+        priority?: "info" | "high" | "medium" | "low" | "critical" | "complete" | "none" | undefined;
+    }) => AxiosPromise<any>;
     /**
      *
      * Create a new section. This will add to the existing entry.
@@ -311,7 +334,7 @@ declare class SaramAPI extends Saram {
      * @param {string} [slackLink] Optional Slack or reference link
      * @returns {AxiosPromise} An Axios promise
      */
-    createNewEntry: (title: string, category: string, slackLink?: string | undefined) => AxiosPromise<any>;
+    createNewEntry: (title: string, category: "android" | "none" | "cryptography" | "firmware" | "forensics" | "hardware" | "ios" | "misc" | "network" | "other" | "pcap" | "pwn" | "reversing" | "scripting" | "stego" | "web", slackLink?: string | undefined) => AxiosPromise<any>;
     /**
      * Reset the API key
      *
@@ -377,5 +400,11 @@ declare class SaramAPI extends Saram {
      * @returns {AxiosPromise} An Axios promise
      */
     adminDeleteUser: (userId: string) => AxiosPromise<any>;
+    /**
+     *Get an array of all the API interaction logs
+     *
+     * @returns {AxiosPromise} An array of log objects
+     */
+    getLogs: () => AxiosPromise<any>;
 }
 export { Saram, SaramInit, SaramAPI };

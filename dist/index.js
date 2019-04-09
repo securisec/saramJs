@@ -45,7 +45,7 @@ class Saram {
             this.saramObject.type = 'script';
             if (params.comment) {
                 this.saramObject.comment.push({
-                    text: params.comment,
+                    text: params.comment || 'saramJs',
                     username: this.user,
                     avatar: this.avatar
                 });
@@ -69,7 +69,7 @@ class Saram {
             this.saramObject.type = 'file';
             if (params.comment) {
                 this.saramObject.comment.push({
-                    text: params.comment,
+                    text: params.comment || 'saramJs',
                     username: this.user,
                     avatar: this.avatar
                 });
@@ -90,7 +90,7 @@ class Saram {
             this.saramObject.type = 'script';
             if (params.comment) {
                 this.saramObject.comment.push({
-                    text: params.comment,
+                    text: params.comment || 'saramJs',
                     username: this.user,
                     avatar: this.avatar
                 });
@@ -113,7 +113,7 @@ class Saram {
             this.saramObject.type = 'stdout';
             if (params.comment) {
                 this.saramObject.comment.push({
-                    text: params.comment,
+                    text: params.comment || 'saramJs',
                     username: this.user,
                     avatar: this.avatar
                 });
@@ -280,6 +280,21 @@ class SaramAPI extends Saram {
             });
         };
         /**
+         *Update an existing entry.
+         *
+         * @memberof SaramAPI
+         */
+        this.updateEntry = ({ token, description, priority }) => {
+            return this.request({
+                method: 'post',
+                url: token,
+                data: {
+                    description: description,
+                    priority: priority || 'none'
+                }
+            });
+        };
+        /**
          *
          * Create a new section. This will add to the existing entry.
          *
@@ -287,9 +302,6 @@ class SaramAPI extends Saram {
          * @returns {AxiosPromise} An Axios promise
          */
         this.createNewSection = (data) => {
-            if (!this.validTypes.includes(data.type)) {
-                throw new Error(`Invalid type. Valid types are ${this.validTypes}`);
-            }
             let payload = {
                 id: v1_1.default(),
                 type: data.type,
@@ -298,7 +310,7 @@ class SaramAPI extends Saram {
                 user: this.user,
                 comment: [
                     {
-                        text: data.comment,
+                        text: data.comment || 'saramJs',
                         username: this.user,
                         avatar: this.avatar
                     }
@@ -328,7 +340,7 @@ class SaramAPI extends Saram {
                 url: `${token}/${dataid}/comment`,
                 data: {
                     data: {
-                        text: comment,
+                        text: comment || 'saramJs',
                         username: this.user,
                         avatar: this.avatar
                     }
@@ -357,9 +369,6 @@ class SaramAPI extends Saram {
          * @returns {AxiosPromise} An Axios promise
          */
         this.createNewEntry = (title, category, slackLink) => {
-            if (!this.validCategories.includes(category)) {
-                throw new Error(`Not a valid category. Valid categories are ${this.validCategories}`);
-            }
             let newToken = this._generateToken(title);
             let payload = {
                 title: title,
@@ -496,6 +505,17 @@ class SaramAPI extends Saram {
                 }
             });
         };
+        /**
+         *Get an array of all the API interaction logs
+         *
+         * @returns {AxiosPromise} An array of log objects
+         */
+        this.getLogs = () => {
+            return this.request({
+                method: 'get',
+                url: 'admin/logs'
+            });
+        };
         this.headers = {
             'x-saram-apikey': this.key,
             'x-saram-username': this.user
@@ -505,25 +525,6 @@ class SaramAPI extends Saram {
             headers: this.headers,
             baseURL: this.apiUrl
         });
-        this.validTypes = ['file', 'stdout', 'script', 'dump', 'tool', 'image'];
-        this.validCategories = [
-            'android',
-            'cryptography',
-            'firmware',
-            'forensics',
-            'hardware',
-            'ios',
-            'misc',
-            'network',
-            'pcap',
-            'pwn',
-            'reversing',
-            'stego',
-            'web',
-            'none',
-            'other',
-            'scripting'
-        ];
     }
 }
 exports.SaramAPI = SaramAPI;
