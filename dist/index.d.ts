@@ -331,10 +331,9 @@ declare class SaramAPI extends Saram {
      *
      * @param {string} title The title of the entry
      * @param {string} category A valid category
-     * @param {string} [slackLink] Optional Slack or reference link
      * @returns {AxiosPromise} An Axios promise
      */
-    createNewEntry: (title: string, category: "android" | "none" | "cryptography" | "firmware" | "forensics" | "hardware" | "ios" | "misc" | "network" | "other" | "pcap" | "pwn" | "reversing" | "scripting" | "stego" | "web", slackLink?: string | undefined) => AxiosPromise<any>;
+    createNewEntry: (title: string, category: "none" | "android" | "cryptography" | "firmware" | "forensics" | "hardware" | "ios" | "misc" | "network" | "other" | "pcap" | "pwn" | "reversing" | "scripting" | "stego" | "web") => AxiosPromise<any>;
     /**
      * Reset the API key
      *
@@ -406,5 +405,11 @@ declare class SaramAPI extends Saram {
      * @returns {AxiosPromise} An array of log objects
      */
     getLogs: () => AxiosPromise<any>;
+    /**
+     *Get an array of objects show the server status
+     *
+     * @returns {AxiosPromise}
+     */
+    getServerStatus: () => AxiosPromise<any>;
 }
 export { Saram, SaramInit, SaramAPI };

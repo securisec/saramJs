@@ -365,15 +365,13 @@ class SaramAPI extends Saram {
          *
          * @param {string} title The title of the entry
          * @param {string} category A valid category
-         * @param {string} [slackLink] Optional Slack or reference link
          * @returns {AxiosPromise} An Axios promise
          */
-        this.createNewEntry = (title, category, slackLink) => {
+        this.createNewEntry = (title, category) => {
             let newToken = this._generateToken(title);
             let payload = {
                 title: title,
                 category: category,
-                slackLink: slackLink || '',
                 timeCreate: new Date().toUTCString(),
                 data: []
             };
@@ -514,6 +512,17 @@ class SaramAPI extends Saram {
             return this.request({
                 method: 'get',
                 url: 'admin/logs'
+            });
+        };
+        /**
+         *Get an array of objects show the server status
+         *
+         * @returns {AxiosPromise}
+         */
+        this.getServerStatus = () => {
+            return this.request({
+                method: 'get',
+                url: 'admin/status'
             });
         };
         this.headers = {
