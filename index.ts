@@ -1,4 +1,4 @@
-import Axios, { AxiosInstance, AxiosResponse, AxiosPromise } from 'axios';
+import Axios, { AxiosInstance } from 'axios';
 import uuid from 'uuid/v1';
 import { readFileSync, writeFileSync } from 'fs';
 import { basename } from 'path';
@@ -147,7 +147,7 @@ class Saram {
 		this.key = c.apiKey;
 		this.user = c.username;
 		this.baseUrl = c.base_url;
-		this.url = `${this.baseUrl}api/${this.token}`
+		this.url = `${this.baseUrl}api/${this.token}`;
 		this.avatar = c.avatar || '/static/saramjs.png';
 		this.saramObject = {
 			id: uuid(),
@@ -318,15 +318,17 @@ class SaramInit {
 	 * @param {boolean} [local] set to true to use localhost as base url 
 	 * @param {string} [base_url] set the base url. Otherwise the default Saram url is used 
 	 */
-	constructor ({apiKey, local, base_url}: {apiKey: string, local?: boolean, base_url?: string}) {
+	constructor ({ apiKey, local, base_url }: { apiKey: string; local?: boolean; base_url?: string }) {
 		this.apiKey = apiKey;
-		this.local = local || false
+		this.local = local || false;
 		if (this.local) {
-			this.base_url = 'http://localhost:5001/'
-		} else if (base_url) {
-			this.base_url = base_url
-		} else {
-			this.base_url = 'https://app.saram.io/'
+			this.base_url = 'http://localhost:5001/';
+		}
+		else if (base_url) {
+			this.base_url = base_url;
+		}
+		else {
+			this.base_url = 'https://app.saram.io/';
 		}
 		this.configPath = `${homedir()}/.saram.conf`;
 	}
@@ -338,13 +340,13 @@ class SaramInit {
 	 * @memberof SaramInit
 	 */
 	init (): void {
-		let url = `${this.base_url}misc/valid/key`
+		let url = `${this.base_url}misc/valid/key`;
 		Axios.post(url, {
 			key: this.apiKey
 		})
 			.then((res) => {
-				let conf = res.data
-				conf.base_url = this.base_url
+				let conf = res.data;
+				conf.base_url = this.base_url;
 				writeFileSync(this.configPath, JSON.stringify(conf), {
 					encoding: 'utf8'
 				});
@@ -429,14 +431,20 @@ class SaramAPI extends Saram {
 	};
 
 	/**
-	 * Gets an array of all the valid entries
+	 *Gets an array of all the valid entries
 	 *
-	 * @returns {AxiosPromise} An Axios promise
+	 * @returns {Promise<object>} A promise with the results
 	 */
-	getAllEntries = (): AxiosPromise => {
-		return this.request({
-			method: 'get',
-			url: '/all/entries'
+	getAllEntries = (): Promise<object> => {
+		return new Promise((resolve, reject) => {
+			this.request({
+				method: 'get',
+				url: '/all/entries'
+			})
+				.then((res) => {
+					resolve(res.data);
+				})
+				.catch((error) => reject(error.response.data));
 		});
 	};
 
@@ -444,12 +452,18 @@ class SaramAPI extends Saram {
 	 * Gets all the data associated with a single entry
 	 *
 	 * @param {string} token A valid entry token
-	 * @returns {AxiosPromise} An Axios promise
+	 * @returns {Promise<object>} A promise with the results
 	 */
-	getEntry = (token: string): AxiosPromise => {
-		return this.request({
-			method: 'get',
-			url: token
+	getEntry = (token: string): Promise<object> => {
+		return new Promise((resolve, reject) => {
+			this.request({
+				method: 'get',
+				url: token
+			})
+				.then((res) => {
+					resolve(res.data);
+				})
+				.catch((error) => reject(error.response.data));
 		});
 	};
 
@@ -457,12 +471,18 @@ class SaramAPI extends Saram {
 	 * Delete an entry entirely
 	 *
 	 * @param {string} token A valid entry token
-	 * @returns {AxiosPromise} An Axios promise
+	 * @returns {Promise<object>} A promise with the results
 	 */
-	deleteEntry = (token: string): AxiosPromise => {
-		return this.request({
-			method: 'delete',
-			url: token
+	deleteEntry = (token: string): Promise<object> => {
+		return new Promise((resolve, reject) => {
+			this.request({
+				method: 'delete',
+				url: token
+			})
+				.then((res) => {
+					resolve(res.data);
+				})
+				.catch((error) => reject(error.response.data));
 		});
 	};
 
@@ -471,45 +491,54 @@ class SaramAPI extends Saram {
 	 *
 	 * @memberof SaramAPI
 	 */
-	updateEntry = ({token, description, priority}: {
+	updateEntry = ({
+		token,
+		description,
+		priority
+	}: {
 		/**
 		 *Valid entry token
 		 *
 		 * @type {string}
 		 */
-		token: string
+		token: string;
 		/**
 		 *Optional description for the enrty
 		 *
 		 * @type {string}
 		 */
-		description?: string,
+		description?: string;
 		/**
 		 *The priorty or risk of the entry. Is used to signify completion also
 		 *
 		 * @type {('info' | 'high' | 'medium' | 'low' | 'critical' | 'complete' | 'none')}
 		 */
-		priority?: 'info' | 'high' | 'medium' | 'low' | 'critical' | 'complete' | 'none'
-	}
-	): AxiosPromise => {
-		return this.request({
-			method: 'post',
-			url: token,
-			data: {
-				description: description,
-				priority: priority || 'none'
-			}
-		})
-	}
+		priority?: 'info' | 'high' | 'medium' | 'low' | 'critical' | 'complete' | 'none';
+	}): Promise<object> => {
+		return new Promise((resolve, reject) => {
+			this.request({
+				method: 'post',
+				url: token,
+				data: {
+					description: description,
+					priority: priority || 'none'
+				}
+			})
+				.then((res) => {
+					resolve(res.data);
+				})
+				.catch((error) => reject(error.response.data));
+		});
+	};
 
 	/**
 	 *
 	 * Create a new section. This will add to the existing entry.
 	 *
 	 * @param {CreateNewSection} data
-	 * @returns {AxiosPromise} An Axios promise
+	 * @returns {Promise<object>} A promise with the results
 	 */
-	createNewSection = (data: CreateNewSection): AxiosPromise => {
+	createNewSection = (data: CreateNewSection): Promise<object> => {
 		let payload: object = {
 			id: uuid(),
 			type: data.type,
@@ -528,10 +557,16 @@ class SaramAPI extends Saram {
 			},
 			time: new Date().toUTCString()
 		};
-		return this.request({
-			method: 'patch',
-			url: data.token,
-			data: payload
+		return new Promise((resolve, reject) => {
+			this.request({
+				method: 'patch',
+				url: data.token,
+				data: payload
+			})
+				.then((res) => {
+					resolve(res.data);
+				})
+				.catch((error) => reject(error.response.data));
 		});
 	};
 
@@ -541,19 +576,25 @@ class SaramAPI extends Saram {
 	 * @param {string} token The token for the entry
 	 * @param {string} dataid The dataid for the section
 	 * @param {string} comment Comment to add
-	 * @returns {AxiosPromise} An Axios promise
+	 * @returns {Promise<object>} A promise with the results
 	 */
-	addComment = (token: string, dataid: string, comment: string): AxiosPromise => {
-		return this.request({
-			method: 'patch',
-			url: `${token}/${dataid}/comment`,
-			data: {
+	addComment = (token: string, dataid: string, comment: string): Promise<object> => {
+		return new Promise((resolve, reject) => {
+			this.request({
+				method: 'patch',
+				url: `${token}/${dataid}/comment`,
 				data: {
-					text: comment || 'saramJs',
-					username: this.user,
-					avatar: this.avatar
+					data: {
+						text: comment || 'saramJs',
+						username: this.user,
+						avatar: this.avatar
+					}
 				}
-			}
+			})
+				.then((res) => {
+					resolve(res.data);
+				})
+				.catch((error) => reject(error.response.data));
 		});
 	};
 
@@ -562,12 +603,18 @@ class SaramAPI extends Saram {
 	 *
 	 * @param {string} token A valid toekn for the entry
 	 * @param {string} dataid The dataid of the section to delete
-	 * @returns {AxiosPromise} An Axios promise
+	 * @returns {Promise<object>} A promise with the results
 	 */
-	deleteSection = (token: string, dataid: string): AxiosPromise => {
-		return this.request({
-			method: 'delete',
-			url: `${token}/${dataid}`
+	deleteSection = (token: string, dataid: string): Promise<object> => {
+		return new Promise((resolve, reject) => {
+			this.request({
+				method: 'delete',
+				url: `${token}/${dataid}`
+			})
+				.then((res) => {
+					resolve(res.data);
+				})
+				.catch((error) => reject(error.response.data));
 		});
 	};
 
@@ -576,11 +623,28 @@ class SaramAPI extends Saram {
 	 *
 	 * @param {string} title The title of the entry
 	 * @param {string} category A valid category
-	 * @returns {AxiosPromise} An Axios promise
+	 * @returns {Promise<object>} A promise with the results
 	 */
-	createNewEntry = (title: string, 
-			category: 'android' |'cryptography' |'firmware' |'forensics' |'hardware' |'ios' |'misc' |'network' |'none' |'other' |'pcap' |'pwn' |'reversing' |'scripting' |'stego' |'web'
-		): AxiosPromise => {
+	createNewEntry = (
+		title: string,
+		category:
+			| 'android'
+			| 'cryptography'
+			| 'firmware'
+			| 'forensics'
+			| 'hardware'
+			| 'ios'
+			| 'misc'
+			| 'network'
+			| 'none'
+			| 'other'
+			| 'pcap'
+			| 'pwn'
+			| 'reversing'
+			| 'scripting'
+			| 'stego'
+			| 'web'
+	): Promise<object> => {
 		let newToken: string = this._generateToken(title);
 		let payload: object = {
 			title: title,
@@ -588,10 +652,16 @@ class SaramAPI extends Saram {
 			timeCreate: new Date().toUTCString(),
 			data: []
 		};
-		return this.request({
-			method: 'post',
-			url: `create/${newToken}`,
-			data: payload
+		return new Promise((resolve, reject) => {
+			this.request({
+				method: 'post',
+				url: `create/${newToken}`,
+				data: payload
+			})
+				.then((res) => {
+					resolve(res.data);
+				})
+				.catch((error) => reject(error.response.data));
 		});
 	};
 
@@ -600,17 +670,49 @@ class SaramAPI extends Saram {
 	 *
 	 * @param {string} oldApiKey The current API key
 	 * @param {string} username The current username
-	 * @returns {AxiosPromise}
+	 * @returns {Promise<object>} A promise with the results
 	 */
-	resetApiKey = (oldApiKey: string, username: string): AxiosPromise => {
+	resetApiKey = (oldApiKey: string, username: string): Promise<object> => {
 		let payload: object = {
 			apiKey: oldApiKey,
 			username: username
 		};
-		return this.request({
-			method: 'post',
-			url: 'reset/key',
-			data: payload
+		return new Promise((resolve, reject) => {
+			this.request({
+				method: 'post',
+				url: 'reset/key',
+				data: payload
+			})
+				.then((res) => {
+					resolve(res.data);
+				})
+				.catch((error) => reject(error.response.data));
+		});
+	};
+
+	/**
+	 *Reset the password for the user. If the user used a federated  
+	 *identity, they can then use the password to log in locally
+	 *
+	 * @param {string} password A valid password string
+	 * @returns {Promise<object>} A promise with the results
+	 */
+	resetPassword = (password: string): Promise<object> => {
+		let payload: object = {
+			apiKey: this.key,
+			username: this.user,
+			password: password
+		};
+		return new Promise((resolve, reject) => {
+			this.request({
+				method: 'post',
+				url: 'reset/password',
+				data: payload
+			})
+				.then((res) => {
+					resolve(res.data);
+				})
+				.catch((error) => reject(error.response.data));
 		});
 	};
 
@@ -621,17 +723,23 @@ class SaramAPI extends Saram {
 	 * @param {string} apiKey A valid API key
 	 * @param {string} oldUserName The previous username
 	 * @param {string} newUserName The new username
-	 * @returns {AxiosPromise} An Axios promise
+	 * @returns {Promise<object>} A promise with the results
 	 */
-	changeUserName = (apiKey: string, oldUserName: string, newUserName: string): AxiosPromise => {
-		return this.request({
-			method: 'post',
-			url: 'reset/username',
-			data: {
-				apiKey: apiKey,
-				username: oldUserName,
-				newUsername: newUserName
-			}
+	changeUserName = (apiKey: string, oldUserName: string, newUserName: string): Promise<object> => {
+		return new Promise((resolve, reject) => {
+			this.request({
+				method: 'post',
+				url: 'reset/username',
+				data: {
+					apiKey: apiKey,
+					username: oldUserName,
+					newUsername: newUserName
+				}
+			})
+				.then((res) => {
+					resolve(res.data);
+				})
+				.catch((error) => reject(error.response.data));
 		});
 	};
 
@@ -640,13 +748,19 @@ class SaramAPI extends Saram {
 	 * username on success.
 	 *
 	 * @param {string} apiKey A valid API key
-	 * @returns {AxiosPromise} an Axios promise
+	 * @returns {Promise<object>} A promise with the results
 	 */
-	validateApiKey = (apiKey: string): AxiosPromise => {
-		return Axios({
-			method: 'post',
-			url: `${this.baseUrl}misc/valid/key`,
-			data: { key: apiKey }
+	validateApiKey = (apiKey: string): Promise<object> => {
+		return new Promise((resolve, reject) => {
+			Axios({
+				method: 'post',
+				url: `${this.baseUrl}misc/valid/key`,
+				data: { key: apiKey }
+			})
+				.then((res) => {
+					resolve(res.data);
+				})
+				.catch((error) => reject(error.response.data));
 		});
 	};
 
@@ -664,92 +778,126 @@ class SaramAPI extends Saram {
 	/**
 	 *Get an arroy of objects of all the users
 	 *
-	 * @returns {AxiosPromise}
+	 * @returns {Promise<object>}
 	 */
-	adminGetAllUsers = (): AxiosPromise => {
-		return this.request({
-			method: 'get',
-			url: 'admin/allusers'
-		})
-	}
+	adminGetAllUsers = (): Promise<object> => {
+		return new Promise((resolve, reject) => {
+			this.request({
+				method: 'get',
+				url: 'admin/allusers'
+			})
+				.then((res) => {
+					resolve(res.data);
+				})
+				.catch((error) => reject(error.response.data));
+		});
+	};
 
 	/**
 	 *Get all the information available for a specific user. 
 	 *
 	 * @param {string} userId A valid user id
-	 * @returns {AxiosPromise}
+	 * @returns {Promise<object>}
 	 */
-	adminFindUser = (userId: string): AxiosPromise => {
-		return this.request({
-			method: 'get',
-			url: `admin/user?id=${userId}`
-		})
-	}
+	adminFindUser = (userId: string): Promise<object> => {
+		return new Promise((resolve, reject) => {
+			this.request({
+				method: 'get',
+				url: `admin/user?id=${userId}`
+			})
+				.then((res) => {
+					resolve(res.data);
+				})
+				.catch((error) => reject(error.response.data));
+		});
+	};
 
 	/**
-	 *Create a new user. Returns an AxiosPromise which when resolved will 
+	 *Create a new user. Returns an Promise<object> which when resolved will 
 	 * the created users object.
 	 *
 	 * @param {string} username A valid username. Sepcial characters/spaces are removed
 	 * @param {string} password A valid password. Passwords are stored as a hash
 	 * @param {boolean} [isAdmin] `true` if admin. `false` by default
 	 * @param {string} [avatar] A valid image URL for the profile image. Defaults to Saram logo.
-	 * @returns {AxiosPromise} Axios promise. Resolves to created user object
+	 * @returns {Promise<object>} Axios promise. Resolves to created user object
 	 */
-	adminCreateUser = (
-		username: string, password: string, isAdmin?: boolean, avatar?: string
-	): AxiosPromise => {
-		return this.request({
-			method: 'post',
-			url: 'admin/user',
-			data: {
-				username: username, 
-				password: password,
-				isAdmin: isAdmin || false,
-				avatar: avatar || ''
-			}
-		})
-	}
+	adminCreateUser = (username: string, password: string, isAdmin?: boolean, avatar?: string): Promise<object> => {
+		return new Promise((resolve, reject) => {
+			this.request({
+				method: 'post',
+				url: 'admin/user',
+				data: {
+					username: username,
+					password: password,
+					isAdmin: isAdmin || false,
+					avatar: avatar || ''
+				}
+			})
+				.then((res) => {
+					resolve(res.data);
+				})
+				.catch((error) => reject(error.response.data));
+		});
+	};
 
 	/**
 	 *Delete a user from the database
 	 *
 	 * @param {string} userId A valid user id.
-	 * @returns {AxiosPromise} An Axios promise
+	 * @returns {Promise<object>} A promise with the results
 	 */
-	adminDeleteUser = (userId: string): AxiosPromise => {
-		return this.request({
-			method: 'delete',
-			url: 'admin/user',
-			data: {
-				user_id: userId
-			}
-		})
-	}
+	adminDeleteUser = (userId: string): Promise<object> => {
+		return new Promise((resolve, reject) => {
+			this.request({
+				method: 'delete',
+				url: 'admin/user',
+				data: {
+					user_id: userId
+				}
+			})
+				.then((res) => {
+					resolve(res.data);
+				})
+				.catch((error) => reject(error.response.data));
+		});
+	};
 
 	/**
 	 *Get an array of all the API interaction logs
 	 *
-	 * @returns {AxiosPromise} An array of log objects
+	 * @returns {Promise<object>} An array of log objects
 	 */
-	getLogs = (): AxiosPromise => {
-		return this.request({
-			method: 'get',
-			url: 'admin/logs'
-		})
-	}
+	getLogs = (): Promise<object> => {
+		return new Promise((resolve, reject) => {
+			this.request({
+				method: 'get',
+				url: 'admin/logs'
+			})
+				.then((res) => {
+					resolve(res.data);
+				})
+				.catch((error) => reject(error.response.data));
+		});
+	};
 
 	/**
 	 *Get an array of objects show the server status
 	 *
-	 * @returns {AxiosPromise}
+	 * @returns {Promise<object>}
 	 */
-	getServerStatus = (): AxiosPromise => {
-		return this.request({
-			method: 'get',
-			url: 'admin/status'
-		})
-	}
+	getServerStatus = (): Promise<object> => {
+		return new Promise((resolve, reject) => {
+			this.request({
+				method: 'get',
+				url: 'admin/status'
+			})
+				.then((res) => {
+					resolve(res.data);
+				})
+				.catch((error) => reject(error.response.data));
+		});
+	};
 }
 
 export { Saram, SaramInit, SaramAPI };
