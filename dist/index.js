@@ -4,11 +4,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const axios_1 = __importDefault(require("axios"));
-const v1_1 = __importDefault(require("uuid/v1"));
 const fs_1 = require("fs");
 const path_1 = require("path");
 const child_process_1 = require("child_process");
 const os_1 = require("os");
+const crypto_1 = require("crypto");
 /**
  * The main class for Saram. token and user values are required.
  * If the .saram.conf file is not found in the home directory, it
@@ -158,7 +158,6 @@ class Saram {
         this.url = `${this.baseUrl}api/${this.token}`;
         this.avatar = c.avatar || '/static/saramjs.png';
         this.saramObject = {
-            id: v1_1.default(),
             user: this.user,
             type: '',
             output: '',
@@ -240,7 +239,7 @@ class SaramAPI extends Saram {
          * Private method that generates a valid token
          */
         this._generateToken = (title) => {
-            var u = v1_1.default().slice(0, 8);
+            var u = crypto_1.randomBytes(20).toString('hex').slice(0, 8);
             var t = title.replace(/[^a-zA-Z0-9 ]/g, '').split(' ').join('-').slice(0, 25);
             return `${u}-${t}`;
         };
@@ -327,7 +326,6 @@ class SaramAPI extends Saram {
          */
         this.createNewSection = (data) => {
             let payload = {
-                id: v1_1.default(),
                 type: data.type,
                 output: data.output,
                 command: data.command,

@@ -32,13 +32,6 @@ interface commentInterface {
 }
 interface saramObject {
     /**
-     *Auto generated id
-     *
-     * @type {string}
-     * @memberof saramObject
-     */
-    id: string;
-    /**
      *Type of output. Valid types are file, stdout, script, dump, tool and image
      *
      * @type {string}

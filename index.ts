@@ -1,9 +1,9 @@
 import Axios, { AxiosInstance } from 'axios';
-import uuid from 'uuid/v1';
 import { readFileSync, writeFileSync } from 'fs';
 import { basename } from 'path';
 import { execSync } from 'child_process';
 import { homedir } from 'os';
+import { randomBytes } from 'crypto';
 
 interface optionsObject {
 	/**
@@ -40,13 +40,6 @@ interface commentInterface {
 }
 
 interface saramObject {
-	/**
-	 *Auto generated id
-	 *
-	 * @type {string}
-	 * @memberof saramObject
-	 */
-	id: string;
 	/**
 	 *Type of output. Valid types are file, stdout, script, dump, tool and image
 	 *
@@ -150,7 +143,6 @@ class Saram {
 		this.url = `${this.baseUrl}api/${this.token}`;
 		this.avatar = c.avatar || '/static/saramjs.png';
 		this.saramObject = {
-			id: uuid(),
 			user: this.user,
 			type: '',
 			output: '',
@@ -425,7 +417,7 @@ class SaramAPI extends Saram {
 	 * Private method that generates a valid token
 	 */
 	private _generateToken = (title: string) => {
-		var u = uuid().slice(0, 8);
+		var u = randomBytes(20).toString('hex').slice(0, 8)
 		var t = title.replace(/[^a-zA-Z0-9 ]/g, '').split(' ').join('-').slice(0, 25);
 		return `${u}-${t}`;
 	};
@@ -540,7 +532,6 @@ class SaramAPI extends Saram {
 	 */
 	createNewSection = (data: CreateNewSection): Promise<object> => {
 		let payload: object = {
-			id: uuid(),
 			type: data.type,
 			output: data.output,
 			command: data.command,
