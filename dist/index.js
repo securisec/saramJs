@@ -168,11 +168,7 @@ class Saram {
                     username: this.user,
                     avatar: this.avatar
                 }
-            ],
-            options: {
-                marked: 2
-            },
-            time: new Date().toUTCString()
+            ]
         };
     }
 }
@@ -216,7 +212,7 @@ class SaramInit {
             .then((res) => {
             let conf = res.data;
             conf.base_url = this.base_url;
-            fs_1.writeFileSync(this.configPath, JSON.stringify(conf), {
+            fs_1.writeFileSync(this.configPath, JSON.stringify(conf, null, 2), {
                 encoding: 'utf8'
             });
             console.log(`Created ${this.configPath}`);
@@ -336,11 +332,7 @@ class SaramAPI extends Saram {
                         username: this.user,
                         avatar: this.avatar
                     }
-                ],
-                options: {
-                    marked: 2
-                },
-                time: new Date().toUTCString()
+                ]
             };
             return new Promise((resolve, reject) => {
                 this.request({
@@ -411,9 +403,7 @@ class SaramAPI extends Saram {
             let newToken = this._generateToken(title);
             let payload = {
                 title: title,
-                category: category,
-                timeCreate: new Date().toUTCString(),
-                data: []
+                category: category
             };
             return new Promise((resolve, reject) => {
                 this.request({
