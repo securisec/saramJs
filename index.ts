@@ -544,7 +544,7 @@ class SaramAPI extends Saram {
 				url: `${token}/${dataid}/comment`,
 				data: {
 					data: {
-						text: comment || 'saramJs',
+						text: comment,
 						username: this.user,
 						avatar: this.avatar
 					}
@@ -701,6 +701,31 @@ class SaramAPI extends Saram {
 	};
 
 	/**
+	 *Returns a markdown text response for the specified entry
+	 *
+	 * @param {({ token: string; render?: 'true' | 'false' })} { token, render }
+	 * @returns {Promise<object>}
+	 */
+	getReport = ({
+		token, //
+		render
+	}: {
+		token: string;
+		render?: 'true' | 'false';
+	}): Promise<object> => {
+		return new Promise((resolve, reject) => {
+			this.request({
+				method: 'get',
+				url: `${token}/report?render=${render || false}`
+			})
+				.then((res) => {
+					resolve(res.data);
+				})
+				.catch((error) => reject(error.response.data));
+		});
+	};
+
+	/**
 	 * Validates an API key, and returns the key and associated 
 	 * username on success.
 	 *
@@ -821,11 +846,67 @@ class SaramAPI extends Saram {
 	};
 
 	/**
+	 *Update a users various properties. All properties are optional
+	 *
+	 * @param {string} userId A valid user Id
+	 * @param {{
+	 * 		profileImage?: string,
+	 * 		apiKey?: string,
+	 * 		isAdmin?: boolean,
+	 * 		isDisabled?: boolean,
+	 * 		authWith?: string
+	 * 	}} {
+	 * 		profileImage=undefined,
+	 * 		apiKey=undefined,
+	 * 		isAdmin=undefined,
+	 * 		isDisabled=undefined,
+	 * 		authWith=undefined
+	 * 	}
+	 * @returns {Promise<object>}
+	 */
+	adminUpdateUser = (
+		userId: string,
+		{
+			profileImage = undefined,
+			apiKey = undefined,
+			isAdmin = undefined,
+			isDisabled = undefined,
+			authWith = undefined
+		}: {
+			_id?: string;
+			profileImage?: string;
+			apiKey?: string;
+			isAdmin?: boolean;
+			isDisabled?: boolean;
+			authWith?: string;
+		}
+	): Promise<object> => {
+		let payload = {
+			profileImage: profileImage,
+			apiKey: apiKey,
+			isAdmin: isAdmin,
+			isDisabled: isDisabled,
+			authWith: authWith
+		};
+		return new Promise((resolve, reject) => {
+			this.request({
+				method: 'patch',
+				url: `admin/user?id=${userId}`,
+				data: payload
+			})
+				.then((res) => {
+					resolve(res.data);
+				})
+				.catch((error) => reject(error.response.data));
+		});
+	};
+
+	/**
 	 *Get an array of all the API interaction logs
 	 *
 	 * @returns {Promise<object>} An array of log objects
 	 */
-	getLogs = (): Promise<object> => {
+	adminGetLogs = (): Promise<object> => {
 		return new Promise((resolve, reject) => {
 			this.request({
 				method: 'get',

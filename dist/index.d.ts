@@ -330,6 +330,16 @@ declare class SaramAPI extends Saram {
      */
     changeUserName: (apiKey: string, oldUserName: string, newUserName: string) => Promise<object>;
     /**
+     *Returns a markdown text response for the specified entry
+     *
+     * @param {({ token: string; render?: 'true' | 'false' })} { token, render }
+     * @returns {Promise<object>}
+     */
+    getReport: ({ token, render }: {
+        token: string;
+        render?: "true" | "false" | undefined;
+    }) => Promise<object>;
+    /**
      * Validates an API key, and returns the key and associated
      * username on success.
      *
@@ -377,11 +387,38 @@ declare class SaramAPI extends Saram {
      */
     adminDeleteUser: (userId: string) => Promise<object>;
     /**
+     *Update a users various properties. All properties are optional
+     *
+     * @param {string} userId A valid user Id
+     * @param {{
+     * 		profileImage?: string,
+     * 		apiKey?: string,
+     * 		isAdmin?: boolean,
+     * 		isDisabled?: boolean,
+     * 		authWith?: string
+     * 	}} {
+     * 		profileImage=undefined,
+     * 		apiKey=undefined,
+     * 		isAdmin=undefined,
+     * 		isDisabled=undefined,
+     * 		authWith=undefined
+     * 	}
+     * @returns {Promise<object>}
+     */
+    adminUpdateUser: (userId: string, { profileImage, apiKey, isAdmin, isDisabled, authWith }: {
+        _id?: string | undefined;
+        profileImage?: string | undefined;
+        apiKey?: string | undefined;
+        isAdmin?: boolean | undefined;
+        isDisabled?: boolean | undefined;
+        authWith?: string | undefined;
+    }) => Promise<object>;
+    /**
      *Get an array of all the API interaction logs
      *
      * @returns {Promise<object>} An array of log objects
      */
-    getLogs: () => Promise<object>;
+    adminGetLogs: () => Promise<object>;
     /**
      *Get an array of objects show the server status
      *
