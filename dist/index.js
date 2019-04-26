@@ -493,6 +493,117 @@ class SaramAPI extends Saram {
             });
         };
         /**
+         *Delete a comment from a section
+         *
+         * @property {string} token The token for the entry
+         * @property {string} dataid The data id for the section
+         * @property {string} commentId The id of the comment
+         * @returns {Promise<object>} A promise with the results
+         */
+        this.deleteComment = ({ token, dataid, commentId }) => {
+            return new Promise((resolve, reject) => {
+                this.request({
+                    method: 'delete',
+                    url: `${token}/${dataid}/comment`,
+                    data: {
+                        commentId: commentId
+                    }
+                })
+                    .then((res) => {
+                    resolve(res.data);
+                })
+                    .catch((error) => reject(error.response.data));
+            });
+        };
+        /**
+         *Get all chat messages associated with an entry
+         *
+         * @param {string} token A valid entry token
+         * @returns {Promise<object>} A promise with an array of objects on resolve
+         */
+        this.getAllChat = (token) => {
+            return new Promise((resolve, reject) => {
+                this.request({
+                    method: 'get',
+                    url: `${token}/chat`
+                })
+                    .then((res) => {
+                    resolve(res.data);
+                })
+                    .catch((error) => reject(error.response.data));
+            });
+        };
+        /**
+         *Post a chat message to an entry
+         *
+         * @property {token} A valid entry token
+         * @property {message} A valid chat message
+         * @returns {Promise<object>} A promise with the results
+         */
+        this.postChatMessage = ({ token, message }) => {
+            return new Promise((resolve, reject) => {
+                this.request({
+                    method: 'post',
+                    url: `${token}/chat`,
+                    data: {
+                        username: this.user,
+                        avatar: this.avatar,
+                        message: message
+                    }
+                })
+                    .then((res) => {
+                    resolve(res.data);
+                })
+                    .catch((error) => reject(error.response.data));
+            });
+        };
+        /**
+         *Update a chat message in an entry
+         *
+         * @property {token} A valid entry token
+         * @property {message} A valid chat message
+         * @property {chatId} A valid existing chat Id
+         * @returns {Promise<object>} A promise with the results
+         */
+        this.updateChatMessage = ({ token, message, chatId }) => {
+            return new Promise((resolve, reject) => {
+                this.request({
+                    method: 'patch',
+                    url: `${token}/chat`,
+                    data: {
+                        chatId: chatId,
+                        message: message,
+                    }
+                })
+                    .then((res) => {
+                    resolve(res.data);
+                })
+                    .catch((error) => reject(error.response.data));
+            });
+        };
+        /**
+         *Delete a chat message from an entry
+         *
+         * @property {token} A valid entry token
+         * @property {chatId} A valid chat Id
+         * @returns {Promise<object>} A promise with the results
+         */
+        this.deleteChatMessage = ({ token, chatId }) => {
+            return new Promise((resolve, reject) => {
+                this.request({
+                    method: 'delete',
+                    url: `${token}/chat`,
+                    data: {
+                        chatId: chatId
+                    }
+                })
+                    .then((res) => {
+                    resolve(res.data);
+                })
+                    .catch((error) => reject(error.response.data));
+            });
+        };
+        /**
          *Returns a markdown text response for the specified entry
          *
          * @param {({ token: string; render?: 'true' | 'false' })} { token, render }

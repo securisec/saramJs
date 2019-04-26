@@ -330,6 +330,61 @@ declare class SaramAPI extends Saram {
      */
     changeUserName: (apiKey: string, oldUserName: string, newUserName: string) => Promise<object>;
     /**
+     *Delete a comment from a section
+     *
+     * @property {string} token The token for the entry
+     * @property {string} dataid The data id for the section
+     * @property {string} commentId The id of the comment
+     * @returns {Promise<object>} A promise with the results
+     */
+    deleteComment: ({ token, dataid, commentId }: {
+        token: string;
+        dataid: string;
+        commentId: string;
+    }) => Promise<object>;
+    /**
+     *Get all chat messages associated with an entry
+     *
+     * @param {string} token A valid entry token
+     * @returns {Promise<object>} A promise with an array of objects on resolve
+     */
+    getAllChat: (token: string) => Promise<object>;
+    /**
+     *Post a chat message to an entry
+     *
+     * @property {token} A valid entry token
+     * @property {message} A valid chat message
+     * @returns {Promise<object>} A promise with the results
+     */
+    postChatMessage: ({ token, message }: {
+        token: string;
+        message: string;
+    }) => Promise<object>;
+    /**
+     *Update a chat message in an entry
+     *
+     * @property {token} A valid entry token
+     * @property {message} A valid chat message
+     * @property {chatId} A valid existing chat Id
+     * @returns {Promise<object>} A promise with the results
+     */
+    updateChatMessage: ({ token, message, chatId }: {
+        token: string;
+        message: string;
+        chatId: string;
+    }) => Promise<object>;
+    /**
+     *Delete a chat message from an entry
+     *
+     * @property {token} A valid entry token
+     * @property {chatId} A valid chat Id
+     * @returns {Promise<object>} A promise with the results
+     */
+    deleteChatMessage: ({ token, chatId }: {
+        token: string;
+        chatId: string;
+    }) => Promise<object>;
+    /**
      *Returns a markdown text response for the specified entry
      *
      * @param {({ token: string; render?: 'true' | 'false' })} { token, render }
