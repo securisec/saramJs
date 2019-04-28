@@ -247,7 +247,8 @@ class Saram {
 			data: this.saramObject,
 			headers: {
 				'x-saram-apikey': this.key,
-				'x-saram-username': this.user
+				'x-saram-username': this.user,
+				'x-saram-avatar': this.avatar
 			}
 		})
 			.then((res) => {
@@ -376,7 +377,8 @@ class SaramAPI extends Saram {
 		super('');
 		this.headers = {
 			'x-saram-apikey': this.key,
-			'x-saram-username': this.user
+			'x-saram-username': this.user,
+			'x-saram-avatar': this.avatar
 		};
 		this.apiUrl = `${this.url}`;
 		this.request = Axios.create({
@@ -701,6 +703,49 @@ class SaramAPI extends Saram {
 	};
 
 	/**
+	 *Change a user avatar with a valid avatar
+	 *
+	 * @param {('/static/avatar/1.png'
+	 * 			| '/static/avatar/2.png'
+	 * 			| '/static/avatar/3.png'
+	 * 			| '/static/avatar/4.png'
+	 * 			| '/static/avatar/5.png'
+	 * 			| '/static/avatar/6.png'
+	 * 			| '/static/avatar/7.png'
+	 * 			| '/static/avatar/8.png'
+	 * 			| '/static/avatar/9.png'
+	 * 			| '/static/avatar/10.png')} avatar
+	 * @returns {Promise<object>}
+	 */
+	changeAvatar = (
+		avatar:
+			| '/static/avatar/1.png'
+			| '/static/avatar/2.png'
+			| '/static/avatar/3.png'
+			| '/static/avatar/4.png'
+			| '/static/avatar/5.png'
+			| '/static/avatar/6.png'
+			| '/static/avatar/7.png'
+			| '/static/avatar/8.png'
+			| '/static/avatar/9.png'
+			| '/static/avatar/10.png'
+	): Promise<object> => {
+		return new Promise((resolve, reject) => {
+			this.request({
+				method: 'post',
+				url: 'reset/avatar',
+				data: {
+					avatar: avatar
+				}
+			})
+				.then((res) => {
+					resolve(res.data);
+				})
+				.catch((error) => reject(error.response.data));
+		});
+	};
+
+	/**
 	 *Delete a comment from a section
 	 *
 	 * @property {string} token The token for the entry
@@ -765,7 +810,6 @@ class SaramAPI extends Saram {
 				url: `${token}/chat`,
 				data: {
 					username: this.user,
-					avatar: this.avatar,
 					message: message
 				}
 			})
@@ -799,7 +843,7 @@ class SaramAPI extends Saram {
 				url: `${token}/chat`,
 				data: {
 					chatId: chatId,
-					message: message,
+					message: message
 				}
 			})
 				.then((res) => {

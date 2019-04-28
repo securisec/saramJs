@@ -330,6 +330,22 @@ declare class SaramAPI extends Saram {
      */
     changeUserName: (apiKey: string, oldUserName: string, newUserName: string) => Promise<object>;
     /**
+     *Change a user avatar with a valid avatar
+     *
+     * @param {('/static/avatar/1.png'
+     * 			| '/static/avatar/2.png'
+     * 			| '/static/avatar/3.png'
+     * 			| '/static/avatar/4.png'
+     * 			| '/static/avatar/5.png'
+     * 			| '/static/avatar/6.png'
+     * 			| '/static/avatar/7.png'
+     * 			| '/static/avatar/8.png'
+     * 			| '/static/avatar/9.png'
+     * 			| '/static/avatar/10.png')} avatar
+     * @returns {Promise<object>}
+     */
+    changeAvatar: (avatar: "/static/avatar/1.png" | "/static/avatar/2.png" | "/static/avatar/3.png" | "/static/avatar/4.png" | "/static/avatar/5.png" | "/static/avatar/6.png" | "/static/avatar/7.png" | "/static/avatar/8.png" | "/static/avatar/9.png" | "/static/avatar/10.png") => Promise<object>;
+    /**
      *Delete a comment from a section
      *
      * @property {string} token The token for the entry
