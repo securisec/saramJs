@@ -246,29 +246,42 @@ declare class SaramAPI extends Saram {
      */
     deleteEntry: (token: string) => Promise<object>;
     /**
-     *Update an existing entry.
-     *
+     *Add an optional description for the entry
+
+     * @property {string} token A valid Saram entry token
+     * @property {string} description A valid description text
+     * @returns {Promise<object>} A promise with the results
      * @memberof SaramAPI
      */
-    updateEntry: ({ token, description, priority }: {
-        /**
-         *Valid entry token
-         *
-         * @type {string}
-         */
+    entryDescription: ({ token, description }: {
         token: string;
-        /**
-         *Optional description for the enrty
-         *
-         * @type {string}
-         */
-        description?: string | undefined;
-        /**
-         *The priorty or risk of the entry. Is used to signify completion also
-         *
-         * @type {('info' | 'high' | 'medium' | 'low' | 'critical' | 'complete' | 'none')}
-         */
-        priority?: "info" | "high" | "medium" | "low" | "critical" | "complete" | "none" | undefined;
+        description: string;
+    }) => Promise<object>;
+    /**
+     *Add optional priority to the entry
+     
+     * @property {string} token A valid Saram entry token
+     * @property {string} priority A valid priority
+     * @returns {Promise<object>} A promise with the results
+     * @memberof SaramAPI
+     */
+    entryPriority: ({ token, priority }: {
+        token: string;
+        priority: "info" | "high" | "medium" | "low" | "critical" | "complete" | "none";
+    }) => Promise<object>;
+    /**
+     *Add an optional notice for the entry
+     
+     * @property {string} token A valid Saram entry token
+     * @property {string} message A valid notice message
+     * @property {string} noticeType A valid notice type. Valid types are success, info, warning, error
+     * @returns {Promise<object>} A promise with the results
+     * @memberof SaramAPI
+     */
+    entryNotice: ({ token, message, noticeType }: {
+        token: string;
+        message: string;
+        noticeType: "info" | "success" | "warning" | "error";
     }) => Promise<object>;
     /**
      *
@@ -281,36 +294,49 @@ declare class SaramAPI extends Saram {
     /**
      * Add a comment to an existing section
      *
-     * @param {string} token The token for the entry
-     * @param {string} dataid The dataid for the section
-     * @param {string} comment Comment to add
+     * @property {string} token The token for the entry
+     * @property {string} dataid The dataid for the section
+     * @property {string} comment Comment to add
      * @returns {Promise<object>} A promise with the results
      */
-    addComment: (token: string, dataid: string, comment: string) => Promise<object>;
+    addComment: ({ token, dataid, comment }: {
+        token: string;
+        dataid: string;
+        comment: string;
+    }) => Promise<object>;
     /**
      * Delete a section. This will delete a single section in an entry
      *
-     * @param {string} token A valid toekn for the entry
-     * @param {string} dataid The dataid of the section to delete
+     * @property {string} token A valid toekn for the entry
+     * @property {string} dataid The dataid of the section to delete
      * @returns {Promise<object>} A promise with the results
      */
-    deleteSection: (token: string, dataid: string) => Promise<object>;
+    deleteSection: ({ token, dataid }: {
+        token: string;
+        dataid: string;
+    }) => Promise<object>;
     /**
      * Create a new entry. This is a whole new entry to work with
      *
-     * @param {string} title The title of the entry
-     * @param {string} category A valid category
+     * @property {string} title The title of the entry
+     * @property {string} category A valid category
      * @returns {Promise<object>} A promise with the results
      */
-    createNewEntry: (title: string, category: "none" | "android" | "cryptography" | "firmware" | "forensics" | "hardware" | "ios" | "misc" | "network" | "other" | "pcap" | "pwn" | "reversing" | "scripting" | "stego" | "web") => Promise<object>;
+    createNewEntry: ({ title, category }: {
+        title: string;
+        category: "none" | "android" | "cryptography" | "firmware" | "forensics" | "hardware" | "ios" | "misc" | "network" | "other" | "pcap" | "pwn" | "reversing" | "scripting" | "stego" | "web";
+    }) => Promise<object>;
     /**
      * Reset the API key
      *
-     * @param {string} oldApiKey The current API key
-     * @param {string} username The current username
+     * @property {string} oldApiKey The current API key
+     * @property {string} username The current username
      * @returns {Promise<object>} A promise with the results
      */
-    resetApiKey: (oldApiKey: string, username: string) => Promise<object>;
+    resetApiKey: ({ oldApiKey, username }: {
+        oldApiKey: string;
+        username: string;
+    }) => Promise<object>;
     /**
      *Reset the password for the user. If the user used a federated
      *identity, they can then use the password to log in locally
@@ -323,12 +349,16 @@ declare class SaramAPI extends Saram {
      * Changes the username. Accepts a valid API key, a valid
      * current username and the new username. Returns a new username
      *
-     * @param {string} apiKey A valid API key
-     * @param {string} oldUserName The previous username
-     * @param {string} newUserName The new username
+     * @property {string} apiKey A valid API key
+     * @property {string} oldUserName The previous username
+     * @property {string} newUserName The new username
      * @returns {Promise<object>} A promise with the results
      */
-    changeUserName: (apiKey: string, oldUserName: string, newUserName: string) => Promise<object>;
+    changeUserName: ({ apiKey, oldUserName, newUserName }: {
+        apiKey: string;
+        oldUserName: string;
+        newUserName: string;
+    }) => Promise<object>;
     /**
      *Change a user avatar with a valid avatar
      *
@@ -443,13 +473,18 @@ declare class SaramAPI extends Saram {
      *Create a new user. Returns an Promise<object> which when resolved will
      * the created users object.
      *
-     * @param {string} username A valid username. Sepcial characters/spaces are removed
-     * @param {string} password A valid password. Passwords are stored as a hash
-     * @param {boolean} [isAdmin] `true` if admin. `false` by default
-     * @param {string} [avatar] A valid image URL for the profile image. Defaults to Saram logo.
+     * @property {string} username A valid username. Sepcial characters/spaces are removed
+     * @property {string} password A valid password. Passwords are stored as a hash
+     * @property {boolean} [isAdmin] `true` if admin. `false` by default
+     * @property {string} [avatar] A valid image URL for the profile image. Defaults to Saram logo.
      * @returns {Promise<object>} Axios promise. Resolves to created user object
      */
-    adminCreateUser: (username: string, password: string, isAdmin?: boolean | undefined, avatar?: string | undefined) => Promise<object>;
+    adminCreateUser: ({ username, password, isAdmin, avatar }: {
+        username: string;
+        password: string;
+        isAdmin?: boolean | undefined;
+        avatar?: string | undefined;
+    }) => Promise<object>;
     /**
      *Delete a user from the database
      *
@@ -461,19 +496,12 @@ declare class SaramAPI extends Saram {
      *Update a users various properties. All properties are optional
      *
      * @param {string} userId A valid user Id
-     * @param {{
-     * 		profileImage?: string,
-     * 		apiKey?: string,
-     * 		isAdmin?: boolean,
-     * 		isDisabled?: boolean,
-     * 		authWith?: string
-     * 	}} {
-     * 		profileImage=undefined,
-     * 		apiKey=undefined,
-     * 		isAdmin=undefined,
-     * 		isDisabled=undefined,
-     * 		authWith=undefined
-     * 	}
+     * @property {string} profileImage The avatar link for the usre
+     * @property {string} apiKey An api key to be used by the user
+     * @property {boolean} [isAdmin] `true` if admin.
+     * @property {boolean} [isDisabled] `true` if admin.
+     * @property {string} [authWith] What platform the user was created with. Defaults to local
+     *
      * @returns {Promise<object>}
      */
     adminUpdateUser: (userId: string, { profileImage, apiKey, isAdmin, isDisabled, authWith }: {
