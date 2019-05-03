@@ -1,5 +1,5 @@
 import Axios, { AxiosInstance } from 'axios';
-import { readFileSync, writeFileSync } from 'fs';
+import { readFileSync, writeFileSync, promises } from 'fs';
 import { basename } from 'path';
 import { execSync } from 'child_process';
 import { homedir } from 'os';
@@ -460,14 +460,33 @@ class SaramAPI extends Saram {
 	 * @returns {Promise<object>} A promise with the results
 	 * @memberof SaramAPI
 	 */
-	entryDescription = ({ token, description }: { token: string; description: string }): Promise<object> => {
+	entryAddDescription = ({ token, description }: { token: string; description: string }): Promise<object> => {
 		return new Promise((resolve, reject) => {
 			this.request({
 				method: 'post',
-				url: token,
+				url: `${token}/description`,
 				data: {
 					description: description
 				}
+			})
+				.then((res) => {
+					resolve(res.data);
+				})
+				.catch((error) => reject(error.response.data));
+		});
+	};
+
+	/**
+	 *Delete the description for an entry
+	 *
+	 * @property {string} token A valid Saram entry token
+	 * @returns {Promise<object>}
+	 */
+	entryDeleteDescription = ({ token }: { token: string }): Promise<object> => {
+		return new Promise((resolve, reject) => {
+			this.request({
+				method: 'delete',
+				url: `${token}/description`
 			})
 				.then((res) => {
 					resolve(res.data);
@@ -484,7 +503,7 @@ class SaramAPI extends Saram {
 	 * @returns {Promise<object>} A promise with the results
 	 * @memberof SaramAPI
 	 */
-	entryPriority = ({
+	entryAddPriority = ({
 		token,
 		priority
 	}: {
@@ -494,10 +513,29 @@ class SaramAPI extends Saram {
 		return new Promise((resolve, reject) => {
 			this.request({
 				method: 'post',
-				url: token,
+				url: `${token}/priority`,
 				data: {
 					priority: priority
 				}
+			})
+				.then((res) => {
+					resolve(res.data);
+				})
+				.catch((error) => reject(error.response.data));
+		});
+	};
+
+	/**
+	 *Delete the priority for an entry
+	 *
+	 * @property {string} token A valid Saram entry token
+	 * @returns {Promise<object>}
+	 */
+	entryDeletePriority = ({ token }: { token: string }): Promise<object> => {
+		return new Promise((resolve, reject) => {
+			this.request({
+				method: 'delete',
+				url: `${token}/priority`
 			})
 				.then((res) => {
 					resolve(res.data);
@@ -515,7 +553,7 @@ class SaramAPI extends Saram {
 	 * @returns {Promise<object>} A promise with the results
 	 * @memberof SaramAPI
 	 */
-	entryNotice = ({
+	entryAddNotice = ({
 		token,
 		message,
 		noticeType
@@ -527,15 +565,30 @@ class SaramAPI extends Saram {
 		return new Promise((resolve, reject) => {
 			this.request({
 				method: 'post',
-				url: token,
+				url: `${token}/notice`,
 				data: {
-					misc: {
-						notice: {
-							message: message,
-							type: noticeType
-						}
-					}
+					message: message,
+					type: noticeType
 				}
+			})
+				.then((res) => {
+					resolve(res.data);
+				})
+				.catch((error) => reject(error.response.data));
+		});
+	};
+
+	/**
+	 *Delete the notice for an entry
+	 *
+	 * @property {string} token A valid Saram entry token
+	 * @returns {Promise<object>}
+	 */
+	entryDeleteNotice = ({ token }: { token: string }): Promise<object> => {
+		return new Promise((resolve, reject) => {
+			this.request({
+				method: 'delete',
+				url: `${token}/notice`
 			})
 				.then((res) => {
 					resolve(res.data);
@@ -681,7 +734,7 @@ class SaramAPI extends Saram {
 	 * @property {string} username The current username
 	 * @returns {Promise<object>} A promise with the results
 	 */
-	resetApiKey = ({oldApiKey, username}:{oldApiKey: string, username: string}): Promise<object> => {
+	resetApiKey = ({ oldApiKey, username }: { oldApiKey: string; username: string }): Promise<object> => {
 		let payload: object = {
 			apiKey: oldApiKey,
 			username: username
@@ -734,7 +787,15 @@ class SaramAPI extends Saram {
 	 * @property {string} newUserName The new username
 	 * @returns {Promise<object>} A promise with the results
 	 */
-	changeUserName = ({apiKey, oldUserName, newUserName}:{apiKey: string, oldUserName: string, newUserName: string}): Promise<object> => {
+	changeUserName = ({
+		apiKey,
+		oldUserName,
+		newUserName
+	}: {
+		apiKey: string;
+		oldUserName: string;
+		newUserName: string;
+	}): Promise<object> => {
 		return new Promise((resolve, reject) => {
 			this.request({
 				method: 'post',
@@ -1030,7 +1091,17 @@ class SaramAPI extends Saram {
 	 * @property {string} [avatar] A valid image URL for the profile image. Defaults to Saram logo.
 	 * @returns {Promise<object>} Axios promise. Resolves to created user object
 	 */
-	adminCreateUser = ({username, password, isAdmin, avatar}:{username: string, password: string, isAdmin?: boolean, avatar?: string}): Promise<object> => {
+	adminCreateUser = ({
+		username,
+		password,
+		isAdmin,
+		avatar
+	}: {
+		username: string;
+		password: string;
+		isAdmin?: boolean;
+		avatar?: string;
+	}): Promise<object> => {
 		return new Promise((resolve, reject) => {
 			this.request({
 				method: 'post',
@@ -1129,6 +1200,24 @@ class SaramAPI extends Saram {
 		return new Promise((resolve, reject) => {
 			this.request({
 				method: 'get',
+				url: 'admin/logs'
+			})
+				.then((res) => {
+					resolve(res.data);
+				})
+				.catch((error) => reject(error.response.data));
+		});
+	};
+
+	/**
+	 *Delete all logs
+	 *
+	 * @returns {Promise<object>} An array of log objects
+	 */
+	adminDeleteLogs = (): Promise<object> => {
+		return new Promise((resolve, reject) => {
+			this.request({
+				method: 'delete',
 				url: 'admin/logs'
 			})
 				.then((res) => {

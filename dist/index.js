@@ -301,14 +301,32 @@ class SaramAPI extends Saram {
          * @returns {Promise<object>} A promise with the results
          * @memberof SaramAPI
          */
-        this.entryDescription = ({ token, description }) => {
+        this.entryAddDescription = ({ token, description }) => {
             return new Promise((resolve, reject) => {
                 this.request({
                     method: 'post',
-                    url: token,
+                    url: `${token}/description`,
                     data: {
                         description: description
                     }
+                })
+                    .then((res) => {
+                    resolve(res.data);
+                })
+                    .catch((error) => reject(error.response.data));
+            });
+        };
+        /**
+         *Delete the description for an entry
+         *
+         * @property {string} token A valid Saram entry token
+         * @returns {Promise<object>}
+         */
+        this.entryDeleteDescription = ({ token }) => {
+            return new Promise((resolve, reject) => {
+                this.request({
+                    method: 'delete',
+                    url: `${token}/description`
                 })
                     .then((res) => {
                     resolve(res.data);
@@ -324,14 +342,32 @@ class SaramAPI extends Saram {
          * @returns {Promise<object>} A promise with the results
          * @memberof SaramAPI
          */
-        this.entryPriority = ({ token, priority }) => {
+        this.entryAddPriority = ({ token, priority }) => {
             return new Promise((resolve, reject) => {
                 this.request({
                     method: 'post',
-                    url: token,
+                    url: `${token}/priority`,
                     data: {
                         priority: priority
                     }
+                })
+                    .then((res) => {
+                    resolve(res.data);
+                })
+                    .catch((error) => reject(error.response.data));
+            });
+        };
+        /**
+         *Delete the priority for an entry
+         *
+         * @property {string} token A valid Saram entry token
+         * @returns {Promise<object>}
+         */
+        this.entryDeletePriority = ({ token }) => {
+            return new Promise((resolve, reject) => {
+                this.request({
+                    method: 'delete',
+                    url: `${token}/priority`
                 })
                     .then((res) => {
                     resolve(res.data);
@@ -348,19 +384,33 @@ class SaramAPI extends Saram {
          * @returns {Promise<object>} A promise with the results
          * @memberof SaramAPI
          */
-        this.entryNotice = ({ token, message, noticeType }) => {
+        this.entryAddNotice = ({ token, message, noticeType }) => {
             return new Promise((resolve, reject) => {
                 this.request({
                     method: 'post',
-                    url: token,
+                    url: `${token}/notice`,
                     data: {
-                        misc: {
-                            notice: {
-                                message: message,
-                                type: noticeType
-                            }
-                        }
+                        message: message,
+                        type: noticeType
                     }
+                })
+                    .then((res) => {
+                    resolve(res.data);
+                })
+                    .catch((error) => reject(error.response.data));
+            });
+        };
+        /**
+         *Delete the notice for an entry
+         *
+         * @property {string} token A valid Saram entry token
+         * @returns {Promise<object>}
+         */
+        this.entryDeleteNotice = ({ token }) => {
+            return new Promise((resolve, reject) => {
+                this.request({
+                    method: 'delete',
+                    url: `${token}/notice`
                 })
                     .then((res) => {
                     resolve(res.data);
@@ -861,6 +911,23 @@ class SaramAPI extends Saram {
             return new Promise((resolve, reject) => {
                 this.request({
                     method: 'get',
+                    url: 'admin/logs'
+                })
+                    .then((res) => {
+                    resolve(res.data);
+                })
+                    .catch((error) => reject(error.response.data));
+            });
+        };
+        /**
+         *Delete all logs
+         *
+         * @returns {Promise<object>} An array of log objects
+         */
+        this.adminDeleteLogs = () => {
+            return new Promise((resolve, reject) => {
+                this.request({
+                    method: 'delete',
                     url: 'admin/logs'
                 })
                     .then((res) => {

@@ -253,9 +253,18 @@ declare class SaramAPI extends Saram {
      * @returns {Promise<object>} A promise with the results
      * @memberof SaramAPI
      */
-    entryDescription: ({ token, description }: {
+    entryAddDescription: ({ token, description }: {
         token: string;
         description: string;
+    }) => Promise<object>;
+    /**
+     *Delete the description for an entry
+     *
+     * @property {string} token A valid Saram entry token
+     * @returns {Promise<object>}
+     */
+    entryDeleteDescription: ({ token }: {
+        token: string;
     }) => Promise<object>;
     /**
      *Add optional priority to the entry
@@ -265,9 +274,18 @@ declare class SaramAPI extends Saram {
      * @returns {Promise<object>} A promise with the results
      * @memberof SaramAPI
      */
-    entryPriority: ({ token, priority }: {
+    entryAddPriority: ({ token, priority }: {
         token: string;
         priority: "info" | "high" | "medium" | "low" | "critical" | "complete" | "none";
+    }) => Promise<object>;
+    /**
+     *Delete the priority for an entry
+     *
+     * @property {string} token A valid Saram entry token
+     * @returns {Promise<object>}
+     */
+    entryDeletePriority: ({ token }: {
+        token: string;
     }) => Promise<object>;
     /**
      *Add an optional notice for the entry
@@ -278,10 +296,19 @@ declare class SaramAPI extends Saram {
      * @returns {Promise<object>} A promise with the results
      * @memberof SaramAPI
      */
-    entryNotice: ({ token, message, noticeType }: {
+    entryAddNotice: ({ token, message, noticeType }: {
         token: string;
         message: string;
         noticeType: "info" | "success" | "warning" | "error";
+    }) => Promise<object>;
+    /**
+     *Delete the notice for an entry
+     *
+     * @property {string} token A valid Saram entry token
+     * @returns {Promise<object>}
+     */
+    entryDeleteNotice: ({ token }: {
+        token: string;
     }) => Promise<object>;
     /**
      *
@@ -518,6 +545,12 @@ declare class SaramAPI extends Saram {
      * @returns {Promise<object>} An array of log objects
      */
     adminGetLogs: () => Promise<object>;
+    /**
+     *Delete all logs
+     *
+     * @returns {Promise<object>} An array of log objects
+     */
+    adminDeleteLogs: () => Promise<object>;
     /**
      *Get an array of objects show the server status
      *
