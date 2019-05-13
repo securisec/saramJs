@@ -401,7 +401,7 @@ declare class SaramAPI extends Saram {
      * 			| '/static/avatar/10.png')} avatar
      * @returns {Promise<object>}
      */
-    changeAvatar: (avatar: "/static/avatar/1.png" | "/static/avatar/2.png" | "/static/avatar/3.png" | "/static/avatar/4.png" | "/static/avatar/5.png" | "/static/avatar/6.png" | "/static/avatar/7.png" | "/static/avatar/8.png" | "/static/avatar/9.png" | "/static/avatar/10.png") => Promise<object>;
+    changeAvatar: (avatar: "/static/avatar/1.png" | "/static/avatar/2.png" | "/static/avatar/3.png" | "/static/avatar/4.png" | "/static/avatar/5.png" | "/static/avatar/6.png" | "/static/avatar/7.png" | "/static/avatar/8.png" | "/static/avatar/9.png" | "/static/avatar/10.png" | "/static/avatar/11.png" | "/static/avatar/12.png" | "/static/avatar/13.png" | "/static/avatar/14.png" | "/static/avatar/15.png" | "/static/avatar/16.png" | "/static/avatar/17.png" | "/static/avatar/18.png" | "/static/avatar/19.png" | "/static/avatar/20.png") => Promise<object>;
     /**
      *Delete a comment from a section
      *
@@ -425,8 +425,8 @@ declare class SaramAPI extends Saram {
     /**
      *Post a chat message to an entry
      *
-     * @property {token} A valid entry token
-     * @property {message} A valid chat message
+     * @property {string} token A valid entry token
+     * @property {string} message A valid chat message
      * @returns {Promise<object>} A promise with the results
      */
     postChatMessage: ({ token, message }: {
@@ -436,9 +436,9 @@ declare class SaramAPI extends Saram {
     /**
      *Update a chat message in an entry
      *
-     * @property {token} A valid entry token
-     * @property {message} A valid chat message
-     * @property {chatId} A valid existing chat Id
+     * @property {string} token valid entry token
+     * @property {string} message valid chat message
+     * @property {string} chatId valid existing chat Id
      * @returns {Promise<object>} A promise with the results
      */
     updateChatMessage: ({ token, message, chatId }: {
@@ -449,13 +449,24 @@ declare class SaramAPI extends Saram {
     /**
      *Delete a chat message from an entry
      *
-     * @property {token} A valid entry token
-     * @property {chatId} A valid chat Id
+     * @property {string} token A valid entry token
+     * @property {string} chatId A valid chat Id
      * @returns {Promise<object>} A promise with the results
      */
     deleteChatMessage: ({ token, chatId }: {
         token: string;
         chatId: string;
+    }) => Promise<object>;
+    /**
+     *Upload an exisiting image to imgbb
+     *
+     * @property {string} token A valid entry token
+     * @property {string} dataid A valid dataid for a section
+     * @returns {Promise<object>}
+     */
+    imageUploadToImgbb: ({ token, dataid }: {
+        token: string;
+        dataid: string;
     }) => Promise<object>;
     /**
      *Returns a markdown text response for the specified entry
@@ -476,11 +487,18 @@ declare class SaramAPI extends Saram {
      */
     validateApiKey: (apiKey: string) => Promise<object>;
     /**
+     *Get an array of all enabled auth modules for Saram
+     *
+     * @returns {Promise<object>}
+     */
+    getEnabledAuthModules: () => Promise<object>;
+    /**
      * Generate a valid token. These can be used for testing
      * or for other methods that require a valid token
      *
      * @param {string} title The title of the section/challenge
      * @returns {string} a valid token
+     * @deprecated This method is no longer very useful
      */
     getValidToken: (title: string) => string;
     /**
@@ -556,6 +574,12 @@ declare class SaramAPI extends Saram {
      *
      * @returns {Promise<object>}
      */
-    getServerStatus: () => Promise<object>;
+    adminGetServerStatus: () => Promise<object>;
+    /**
+     *Get an array of unresolved errors caught by Sentry if enabled
+     *
+     * @returns {Promise<object>}
+     */
+    adminGetSentryLogs: () => Promise<object>;
 }
 export { Saram, SaramInit, SaramAPI };

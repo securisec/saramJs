@@ -671,8 +671,8 @@ class SaramAPI extends Saram {
         /**
          *Post a chat message to an entry
          *
-         * @property {token} A valid entry token
-         * @property {message} A valid chat message
+         * @property {string} token A valid entry token
+         * @property {string} message A valid chat message
          * @returns {Promise<object>} A promise with the results
          */
         this.postChatMessage = ({ token, message }) => {
@@ -694,9 +694,9 @@ class SaramAPI extends Saram {
         /**
          *Update a chat message in an entry
          *
-         * @property {token} A valid entry token
-         * @property {message} A valid chat message
-         * @property {chatId} A valid existing chat Id
+         * @property {string} token valid entry token
+         * @property {string} message valid chat message
+         * @property {string} chatId valid existing chat Id
          * @returns {Promise<object>} A promise with the results
          */
         this.updateChatMessage = ({ token, message, chatId }) => {
@@ -718,8 +718,8 @@ class SaramAPI extends Saram {
         /**
          *Delete a chat message from an entry
          *
-         * @property {token} A valid entry token
-         * @property {chatId} A valid chat Id
+         * @property {string} token A valid entry token
+         * @property {string} chatId A valid chat Id
          * @returns {Promise<object>} A promise with the results
          */
         this.deleteChatMessage = ({ token, chatId }) => {
@@ -735,6 +735,27 @@ class SaramAPI extends Saram {
                     resolve(res.data);
                 })
                     .catch((error) => reject(error.response.data));
+            });
+        };
+        /**
+         *Upload an exisiting image to imgbb
+         *
+         * @property {string} token A valid entry token
+         * @property {string} dataid A valid dataid for a section
+         * @returns {Promise<object>}
+         */
+        this.imageUploadToImgbb = ({ token, dataid }) => {
+            return new Promise((resolve, reject) => {
+                this.request({
+                    method: 'post',
+                    url: 'image/imgbb',
+                    data: {
+                        token: token,
+                        dataid: dataid
+                    }
+                }).then((res) => {
+                    resolve(res.data);
+                }).catch(error => reject(error.response.data));
             });
         };
         /**
@@ -777,11 +798,27 @@ class SaramAPI extends Saram {
             });
         };
         /**
+         *Get an array of all enabled auth modules for Saram
+         *
+         * @returns {Promise<object>}
+         */
+        this.getEnabledAuthModules = () => {
+            return new Promise((resolve, reject) => {
+                this.request({
+                    method: 'get',
+                    url: 'misc/auth/modules'
+                }).then((res) => {
+                    resolve(res.data);
+                }).catch(error => reject(error.response.data));
+            });
+        };
+        /**
          * Generate a valid token. These can be used for testing
          * or for other methods that require a valid token
          *
          * @param {string} title The title of the section/challenge
          * @returns {string} a valid token
+         * @deprecated This method is no longer very useful
          */
         this.getValidToken = (title) => {
             return this._generateToken(title);
@@ -941,7 +978,7 @@ class SaramAPI extends Saram {
          *
          * @returns {Promise<object>}
          */
-        this.getServerStatus = () => {
+        this.adminGetServerStatus = () => {
             return new Promise((resolve, reject) => {
                 this.request({
                     method: 'get',
@@ -951,6 +988,21 @@ class SaramAPI extends Saram {
                     resolve(res.data);
                 })
                     .catch((error) => reject(error.response.data));
+            });
+        };
+        /**
+         *Get an array of unresolved errors caught by Sentry if enabled
+         *
+         * @returns {Promise<object>}
+         */
+        this.adminGetSentryLogs = () => {
+            return new Promise((resolve, reject) => {
+                this.request({
+                    method: 'get',
+                    url: 'admin/errors'
+                }).then((res) => {
+                    resolve(res.data);
+                }).catch(error => reject(error.response.data));
             });
         };
         this.headers = {
