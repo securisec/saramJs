@@ -319,6 +319,17 @@ declare class SaramAPI extends Saram {
      */
     createNewSection: (data: CreateNewSection) => Promise<object>;
     /**
+     * Mark a section
+     *
+     * @property {string} token The token for the entry
+     * @property {string} dataid The dataid for the section
+     * @returns {Promise<object>} A promise with the results
+     */
+    markSection: ({ token, dataid }: {
+        token: string;
+        dataid: string;
+    }) => Promise<object>;
+    /**
      * Add a comment to an existing section
      *
      * @property {string} token The token for the entry
