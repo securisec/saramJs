@@ -632,6 +632,26 @@ class SaramAPI extends Saram {
 	};
 
 	/**
+	 * Mark a section
+	 *
+	 * @property {string} token The token for the entry
+	 * @property {string} dataid The dataid for the section
+	 * @returns {Promise<object>} A promise with the results
+	 */
+	markSection = ({ token, dataid }: { token: string; dataid: string }): Promise<object> => {
+		return new Promise((resolve, reject) => {
+			this.request({
+				method: 'patch',
+				url: `${token}/${dataid}/marked`
+			})
+				.then((res) => {
+					resolve(res.data);
+				})
+				.catch((error) => reject(error.response.data));
+		});
+	};
+
+	/**
 	 * Add a comment to an existing section
 	 *
 	 * @property {string} token The token for the entry
@@ -1004,7 +1024,7 @@ class SaramAPI extends Saram {
 	 * @property {string} dataid A valid dataid for a section
 	 * @returns {Promise<object>}
 	 */
-	imageUploadToImgbb = ({token, dataid}: {token: string, dataid: string}): Promise<object> => {
+	imageUploadToImgbb = ({ token, dataid }: { token: string; dataid: string }): Promise<object> => {
 		return new Promise((resolve, reject) => {
 			this.request({
 				method: 'post',
@@ -1013,11 +1033,13 @@ class SaramAPI extends Saram {
 					token: token,
 					dataid: dataid
 				}
-			}).then((res) => {
-				resolve(res.data);
-			}).catch(error => reject(error.response.data));
-		})
-	}
+			})
+				.then((res) => {
+					resolve(res.data);
+				})
+				.catch((error) => reject(error.response.data));
+		});
+	};
 
 	/**
 	 *Returns a markdown text response for the specified entry
@@ -1075,11 +1097,13 @@ class SaramAPI extends Saram {
 			this.request({
 				method: 'get',
 				url: 'misc/auth/modules'
-			}).then((res) => {
-				resolve(res.data);
-			}).catch(error => reject(error.response.data));
-		})
-	}
+			})
+				.then((res) => {
+					resolve(res.data);
+				})
+				.catch((error) => reject(error.response.data));
+		});
+	};
 
 	/**
 	 * Generate a valid token. These can be used for testing 
@@ -1304,11 +1328,13 @@ class SaramAPI extends Saram {
 			this.request({
 				method: 'get',
 				url: 'admin/errors'
-			}).then((res) => {
-				resolve(res.data);
-			}).catch(error => reject(error.response.data));
-		})
-	}
+			})
+				.then((res) => {
+					resolve(res.data);
+				})
+				.catch((error) => reject(error.response.data));
+		});
+	};
 }
 
 export { Saram, SaramInit, SaramAPI };
