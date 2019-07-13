@@ -432,7 +432,9 @@ declare class SaramAPI extends Saram {
      * @param {string} token A valid entry token
      * @returns {Promise<object>} A promise with an array of objects on resolve
      */
-    getAllChat: (token: string) => Promise<object>;
+    getAllChat: ({ token }: {
+        token: string;
+    }) => Promise<object>;
     /**
      *Post a chat message to an entry
      *
@@ -542,6 +544,12 @@ declare class SaramAPI extends Saram {
         avatar?: string | undefined;
     }) => Promise<object>;
     /**
+     *Destroy the Saram db. Users are not removed
+     */
+    adminDestroyDB: ({ confirm }: {
+        confirm: boolean;
+    }) => Promise<object>;
+    /**
      *Delete a user from the database
      *
      * @param {string} userId A valid user id.
@@ -552,7 +560,8 @@ declare class SaramAPI extends Saram {
      *Update a users various properties. All properties are optional
      *
      * @param {string} userId A valid user Id
-     * @property {string} profileImage The avatar link for the usre
+     * @property {string} username The the username
+     * @property {string} profileImage The avatar link for the user
      * @property {string} apiKey An api key to be used by the user
      * @property {boolean} [isAdmin] `true` if admin.
      * @property {boolean} [isDisabled] `true` if admin.
@@ -560,7 +569,8 @@ declare class SaramAPI extends Saram {
      *
      * @returns {Promise<object>}
      */
-    adminUpdateUser: (userId: string, { profileImage, apiKey, isAdmin, isDisabled, authWith }: {
+    adminUpdateUser: (userId: string, { username, profileImage, apiKey, isAdmin, isDisabled, authWith }: {
+        username?: string | undefined;
         _id?: string | undefined;
         profileImage?: string | undefined;
         apiKey?: string | undefined;

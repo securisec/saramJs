@@ -675,7 +675,7 @@ class SaramAPI extends Saram {
          * @param {string} token A valid entry token
          * @returns {Promise<object>} A promise with an array of objects on resolve
          */
-        this.getAllChat = (token) => {
+        this.getAllChat = ({ token }) => {
             return new Promise((resolve, reject) => {
                 this.request({
                     method: 'get',
@@ -910,6 +910,24 @@ class SaramAPI extends Saram {
             });
         };
         /**
+         *Destroy the Saram db. Users are not removed
+         */
+        this.adminDestroyDB = ({ confirm }) => {
+            return new Promise((resolve, reject) => {
+                this.request({
+                    method: 'delete',
+                    url: 'admin/destroy',
+                    data: {
+                        confirm: confirm
+                    }
+                })
+                    .then((res) => {
+                    resolve(res.data);
+                })
+                    .catch((error) => reject(error.response.data));
+            });
+        };
+        /**
          *Delete a user from the database
          *
          * @param {string} userId A valid user id.
@@ -934,7 +952,8 @@ class SaramAPI extends Saram {
          *Update a users various properties. All properties are optional
          *
          * @param {string} userId A valid user Id
-         * @property {string} profileImage The avatar link for the usre
+         * @property {string} username The the username
+         * @property {string} profileImage The avatar link for the user
          * @property {string} apiKey An api key to be used by the user
          * @property {boolean} [isAdmin] `true` if admin.
          * @property {boolean} [isDisabled] `true` if admin.
@@ -942,8 +961,9 @@ class SaramAPI extends Saram {
          *
          * @returns {Promise<object>}
          */
-        this.adminUpdateUser = (userId, { profileImage = undefined, apiKey = undefined, isAdmin = undefined, isDisabled = undefined, authWith = undefined }) => {
+        this.adminUpdateUser = (userId, { username = undefined, profileImage = undefined, apiKey = undefined, isAdmin = undefined, isDisabled = undefined, authWith = undefined }) => {
             let payload = {
+                username: username,
                 profileImage: profileImage,
                 apiKey: apiKey,
                 isAdmin: isAdmin,
