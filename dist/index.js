@@ -841,7 +841,7 @@ class SaramAPI extends Saram {
          *
          * @param {string} title The title of the section/challenge
          * @returns {string} a valid token
-         * @deprecated This method is no longer very useful
+         * @deprecated This method is no nnger very useful
          */
         this.getValidToken = (title) => {
             return this._generateToken(title);
@@ -1043,6 +1043,26 @@ class SaramAPI extends Saram {
                 this.request({
                     method: 'get',
                     url: 'admin/errors'
+                })
+                    .then((res) => {
+                    resolve(res.data);
+                })
+                    .catch((error) => reject(error.response.data));
+            });
+        };
+        /**
+         *Create an admin account on fresh Saram installation
+         * @param {string} username A valid username
+         * @returns {Promise<object>}
+         */
+        this.miscCreateAdmin = ({ username }) => {
+            return new Promise((resolve, reject) => {
+                this.request({
+                    method: 'post',
+                    url: `${this.baseUrl}misc/setup`,
+                    data: {
+                        username: username
+                    }
                 })
                     .then((res) => {
                     resolve(res.data);

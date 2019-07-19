@@ -511,7 +511,7 @@ declare class SaramAPI extends Saram {
      *
      * @param {string} title The title of the section/challenge
      * @returns {string} a valid token
-     * @deprecated This method is no longer very useful
+     * @deprecated This method is no nnger very useful
      */
     getValidToken: (title: string) => string;
     /**
@@ -602,5 +602,13 @@ declare class SaramAPI extends Saram {
      * @returns {Promise<object>}
      */
     adminGetSentryLogs: () => Promise<object>;
+    /**
+     *Create an admin account on fresh Saram installation
+     * @param {string} username A valid username
+     * @returns {Promise<object>}
+     */
+    miscCreateAdmin: ({ username }: {
+        username: string;
+    }) => Promise<object>;
 }
 export { Saram, SaramInit, SaramAPI };
