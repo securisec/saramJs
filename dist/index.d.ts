@@ -607,8 +607,9 @@ declare class SaramAPI extends Saram {
      * @param {string} username A valid username
      * @returns {Promise<object>}
      */
-    miscCreateAdmin: ({ username }: {
+    miscCreateAdmin: ({ username, url }: {
         username: string;
+        url: string;
     }) => Promise<object>;
 }
 export { Saram, SaramInit, SaramAPI };

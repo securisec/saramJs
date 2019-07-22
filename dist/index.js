@@ -1055,11 +1055,17 @@ class SaramAPI extends Saram {
          * @param {string} username A valid username
          * @returns {Promise<object>}
          */
-        this.miscCreateAdmin = ({ username }) => {
+        this.miscCreateAdmin = ({ username, url }) => {
+            if (!url.endsWith('/')) {
+                url += '/misc/setup';
+            }
+            else {
+                url += 'misc/setup';
+            }
             return new Promise((resolve, reject) => {
                 this.request({
                     method: 'post',
-                    url: `${this.baseUrl}misc/setup`,
+                    url: url,
                     data: {
                         username: username
                     }
