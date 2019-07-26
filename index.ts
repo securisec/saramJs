@@ -372,14 +372,18 @@ class SaramAPI extends Saram {
 	/**
 	 *Creates an instance of SaramAPI.
 	 * @memberof SaramAPI
+	 * @property {object} meta An object that is added to the request headers
 	 */
-	constructor () {
+	constructor (meta: object={}) {
 		super('');
 		this.headers = {
 			'x-saram-apikey': this.key,
 			'x-saram-username': this.user,
 			'x-saram-avatar': this.avatar
 		};
+		if (meta) {
+			Object.assign(this.headers, meta)
+		}
 		this.apiUrl = `${this.url}`;
 		this.request = Axios.create({
 			headers: this.headers,

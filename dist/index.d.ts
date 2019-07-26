@@ -219,8 +219,9 @@ declare class SaramAPI extends Saram {
     /**
      *Creates an instance of SaramAPI.
      * @memberof SaramAPI
+     * @property {object} meta An object that is added to the request headers
      */
-    constructor();
+    constructor(meta?: object);
     /**
      * Private method that generates a valid token
      */

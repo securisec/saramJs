@@ -229,8 +229,9 @@ class SaramAPI extends Saram {
     /**
      *Creates an instance of SaramAPI.
      * @memberof SaramAPI
+     * @property {object} meta An object that is added to the request headers
      */
-    constructor() {
+    constructor(meta = {}) {
         super('');
         /**
          * Private method that generates a valid token
@@ -1081,6 +1082,9 @@ class SaramAPI extends Saram {
             'x-saram-username': this.user,
             'x-saram-avatar': this.avatar
         };
+        if (meta) {
+            Object.assign(this.headers, meta);
+        }
         this.apiUrl = `${this.url}`;
         this.request = axios_1.default.create({
             headers: this.headers,
