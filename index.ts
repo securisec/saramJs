@@ -374,7 +374,7 @@ class SaramAPI extends Saram {
 	 * @memberof SaramAPI
 	 * @property {object} meta An object that is added to the request headers
 	 */
-	constructor (meta: object={}) {
+	constructor (meta: object = {}) {
 		super('');
 		this.headers = {
 			'x-saram-apikey': this.key,
@@ -382,7 +382,7 @@ class SaramAPI extends Saram {
 			'x-saram-avatar': this.avatar
 		};
 		if (meta) {
-			Object.assign(this.headers, meta)
+			Object.assign(this.headers, meta);
 		}
 		this.apiUrl = `${this.url}`;
 		this.request = Axios.create({
@@ -448,6 +448,30 @@ class SaramAPI extends Saram {
 			this.request({
 				method: 'delete',
 				url: token
+			})
+				.then((res) => {
+					resolve(res.data);
+				})
+				.catch((error) => reject(error.response.data));
+		});
+	};
+
+	/**
+	 *Change the workspace for an entry
+
+	 * @property {string} token A valid Saram entry token
+	 * @property {string} workspace A valid workspace name
+	 * @returns {Promise<object>} A promise with the results
+	 * @memberof SaramAPI
+	 */
+	entryChangeWorkspace = ({ token, workspace }: { token: string; workspace: string }): Promise<object> => {
+		return new Promise((resolve, reject) => {
+			this.request({
+				method: 'post',
+				url: `${token}/workspace`,
+				data: {
+					workspace: workspace
+				}
 			})
 				.then((res) => {
 					resolve(res.data);
@@ -712,9 +736,11 @@ class SaramAPI extends Saram {
 	 */
 	createNewEntry = ({
 		title,
-		category
+		category,
+		workspace = 'default'
 	}: {
 		title: string;
+		workspace: string;
 		category:
 			| 'android'
 			| 'cryptography'
@@ -736,7 +762,8 @@ class SaramAPI extends Saram {
 		let newToken: string = this._generateToken(title);
 		let payload: object = {
 			title: title,
-			category: category
+			category: category,
+			workspace: workspace
 		};
 		return new Promise((resolve, reject) => {
 			this.request({
@@ -1371,8 +1398,9 @@ class SaramAPI extends Saram {
 	miscCreateAdmin = ({ username, url }: { username: string; url: string }): Promise<object> => {
 		if (!url.endsWith('/')) {
 			url += '/misc/setup';
-		} else {
-			url += 'misc/setup'
+		}
+		else {
+			url += 'misc/setup';
 		}
 		return new Promise((resolve, reject) => {
 			this.request({

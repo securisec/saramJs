@@ -247,6 +247,18 @@ declare class SaramAPI extends Saram {
      */
     deleteEntry: (token: string) => Promise<object>;
     /**
+     *Change the workspace for an entry
+
+     * @property {string} token A valid Saram entry token
+     * @property {string} workspace A valid workspace name
+     * @returns {Promise<object>} A promise with the results
+     * @memberof SaramAPI
+     */
+    entryChangeWorkspace: ({ token, workspace }: {
+        token: string;
+        workspace: string;
+    }) => Promise<object>;
+    /**
      *Add an optional description for the entry
 
      * @property {string} token A valid Saram entry token
@@ -361,8 +373,9 @@ declare class SaramAPI extends Saram {
      * @property {string} category A valid category
      * @returns {Promise<object>} A promise with the results
      */
-    createNewEntry: ({ title, category }: {
+    createNewEntry: ({ title, category, workspace }: {
         title: string;
+        workspace: string;
         category: "none" | "android" | "cryptography" | "firmware" | "forensics" | "hardware" | "ios" | "misc" | "network" | "other" | "pcap" | "pwn" | "reversing" | "scripting" | "stego" | "web";
     }) => Promise<object>;
     /**

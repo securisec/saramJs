@@ -295,6 +295,29 @@ class SaramAPI extends Saram {
             });
         };
         /**
+         *Change the workspace for an entry
+    
+         * @property {string} token A valid Saram entry token
+         * @property {string} workspace A valid workspace name
+         * @returns {Promise<object>} A promise with the results
+         * @memberof SaramAPI
+         */
+        this.entryChangeWorkspace = ({ token, workspace }) => {
+            return new Promise((resolve, reject) => {
+                this.request({
+                    method: 'post',
+                    url: `${token}/workspace`,
+                    data: {
+                        workspace: workspace
+                    }
+                })
+                    .then((res) => {
+                    resolve(res.data);
+                })
+                    .catch((error) => reject(error.response.data));
+            });
+        };
+        /**
          *Add an optional description for the entry
     
          * @property {string} token A valid Saram entry token
@@ -524,11 +547,12 @@ class SaramAPI extends Saram {
          * @property {string} category A valid category
          * @returns {Promise<object>} A promise with the results
          */
-        this.createNewEntry = ({ title, category }) => {
+        this.createNewEntry = ({ title, category, workspace = 'default' }) => {
             let newToken = this._generateToken(title);
             let payload = {
                 title: title,
-                category: category
+                category: category,
+                workspace: workspace
             };
             return new Promise((resolve, reject) => {
                 this.request({
